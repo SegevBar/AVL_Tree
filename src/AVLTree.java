@@ -12,14 +12,18 @@ import java.util.List;
 public class AVLTree {
 
 	private IAVLNode virtualLeaf = new AVLNode();
-	private IAVLNode root = virtualLeaf;
+	private IAVLNode root;
 	private IAVLNode min;
 	private IAVLNode max;
 
 	/**
 	 * empty constructor
 	 */
-	public AVLTree() {	}
+	public AVLTree() {
+		this.root = virtualLeaf;
+		this.min = virtualLeaf;
+		this.max = virtualLeaf;
+	}
 
 	/**
 	 * non empty constructor
@@ -27,6 +31,7 @@ public class AVLTree {
 	 * for debugging
 	 */
 	public AVLTree(int[] keys) {
+		this();
 		char info = 'a';
 		for (int key : keys) {
 			this.insert(key, String.valueOf(info));
@@ -41,7 +46,7 @@ public class AVLTree {
 	*
 	*/
 	public boolean empty() {
-		if (this.root == virtualLeaf) {
+		if (!(this.root.isRealNode())) {
 			return true;
 		}
 		return false;
@@ -51,7 +56,7 @@ public class AVLTree {
 	 * binary search for node with key == k
 	 * @return node when node.key == k, else the parent of the node
 	 */
-	private IAVLNode treePosition(int k, IAVLNode root) {
+	private IAVLNode treePosition(int k) {
 		IAVLNode p = this.root;
 
 		while (p.getLeft() != this.virtualLeaf && p.getRight() != this.virtualLeaf) {
@@ -81,7 +86,11 @@ public class AVLTree {
 	* otherwise, returns null.
 	*/
 	public String search(int k) {
-
+		IAVLNode node = this.treePosition(k);
+		if (node.getKey() == k) {
+			return node.getValue();
+		}
+		return null;
 	}
 
 	/**
@@ -94,7 +103,62 @@ public class AVLTree {
 	* Returns -1 if an item with key k already exists in the tree.
 	*/
 	public int insert(int k, String i) {
-	  return 420;	// to be replaced by student code
+		int rebalanceActions = 0;
+
+		//if the tree is empty - add the first node as the root
+		if (this.empty()) {
+			AVLNode firstNode = new AVLNode(k, i);
+			this.root = firstNode;
+			this.min = firstNode;
+			this.max = firstNode;
+
+			//updating the node variables:
+			firstNode.setRight(this.virtualLeaf);
+			firstNode.setLeft(this.virtualLeaf);
+			firstNode.setParent(this.virtualLeaf);
+			firstNode.setHeight(0);
+			firstNode.setRank();
+			firstNode.setSize();
+		}
+		//otherwise - find the position to add the new node, add and rebalance
+		else {
+			IAVLNode parent = this.treePosition(k);
+			if (parent.getKey() == k) {  //if key is already in the tree - return (-1)
+				return -1;
+			}
+			IAVLNode child = new AVLNode(k, i);
+
+			//updating the node variables:
+			child.setRight(this.virtualLeaf);
+			child.setLeft(this.virtualLeaf);
+			child.setParent(parent);
+			child.setHeight(0);
+			child.setRank();
+			child.setSize();
+
+			//add the new node as left child if k is smaller, or right child if k is bigger than parent's key
+			if (parent.getKey() < k) {
+				parent.setRight(child);
+			} else {
+				parent.setLeft(child);
+			}
+
+			//check if k is smaller then min key
+			if (this.min.getKey() > k) {
+				this.min = child;
+			}
+			//check if k is bigger then max key
+			if (this.max.getKey() < k) {
+				this.max = child;
+			}
+
+			//rebalance the tree
+			rebalanceActions += this.rebalance(parent, rebalanceActions);
+
+			//update the size variable of all the nodes from child to tree root
+			this.updateSize(child);
+		}
+		return rebalanceActions;
 	}
 
 	/**
@@ -106,9 +170,8 @@ public class AVLTree {
 	* A promotion/rotation counts as one re-balance operation, double-rotation is counted as 2.
 	* Returns -1 if an item with key k was not found in the tree.
 	*/
-	public int delete(int k)
-	{
-	   return 421;	// to be replaced by student code
+	public int delete(int k) {
+
 	}
 
 
@@ -146,7 +209,7 @@ public class AVLTree {
 	 * @return
 	 */
 	private int rebalance(IAVLNode x, int countActions) {
-
+		return 0;
 	}
 
 	/**
@@ -231,9 +294,8 @@ public class AVLTree {
 	* Returns the info of the item with the smallest key in the tree,
 	* or null if the tree is empty.
 	*/
-	public String min()
-	{
-	   return "minDefaultString"; // to be replaced by student code
+	public String min()	{
+		return this.min.getValue();
 	}
 
 	/**
@@ -242,9 +304,8 @@ public class AVLTree {
 	* Returns the info of the item with the largest key in the tree,
 	* or null if the tree is empty.
 	*/
-	public String max()
-	{
-	   return "maxDefaultString"; // to be replaced by student code
+	public String max()	{
+		return this.max.getValue();
 	}
 
 	/**
@@ -253,8 +314,7 @@ public class AVLTree {
 	* Returns a sorted array which contains all keys in the tree,
 	* or an empty array if the tree is empty.
 	*/
-	public int[] keysToArray()
-	{
+	public int[] keysToArray() {
 		return new int[33]; // to be replaced by student code
 	}
 
@@ -265,9 +325,16 @@ public class AVLTree {
 	* sorted by their respective keys,
 	* or an empty array if the tree is empty.
 	*/
-	public String[] infoToArray()
-	{
+	public String[] infoToArray() {
 		return new String[55]; // to be replaced by student code
+	}
+
+	/**
+	 *
+	 * @param x
+	 */
+	private void updateSize(IAVLNode x) {
+
 	}
 
 	/**
@@ -275,9 +342,8 @@ public class AVLTree {
 	*
 	* Returns the number of nodes in the tree.
 	*/
-	public int size()
-	{
-	   return 422; // to be replaced by student code
+	public int size() {
+	   return return this.root.getSize();
 	}
 
 	/**
@@ -285,9 +351,8 @@ public class AVLTree {
 	*
 	* Returns the root AVL node, or null if the tree is empty
 	*/
-	public IAVLNode getRoot()
-	{
-	   return null;
+	public IAVLNode getRoot() {
+		return this.root;
 	}
 
 	/**
@@ -299,9 +364,8 @@ public class AVLTree {
 	* precondition: search(x) != null (i.e. you can also assume that the tree is not empty)
 	* postcondition: none
 	*/
-	public AVLTree[] split(int x)
-	{
-	   return null;
+	public AVLTree[] split(int x) {
+		return null;
 	}
 
 	/**
@@ -313,9 +377,8 @@ public class AVLTree {
 	* precondition: keys(t) < x < keys() or keys(t) > x > keys(). t/tree might be empty (rank = -1).
 	* postcondition: none
 	*/
-	public int join(IAVLNode x, AVLTree t)
-	{
-	   return -1;
+	public int join(IAVLNode x, AVLTree t) {
+		return -1;
 	}
 
 	/** 
@@ -334,6 +397,10 @@ public class AVLTree {
 		public boolean isRealNode(); // Returns True if this is a non-virtual AVL node.
     	public void setHeight(int height); // Sets the height of the node.
     	public int getHeight(); // Returns the height of the node (-1 for virtual nodes).
+
+		public void setRank(); //sets the rank of the node
+		public void setSize(); //sets the size of the node's sub tree
+		public int getSize(); //return the size veriable of the node
 	}
 
 	/**
