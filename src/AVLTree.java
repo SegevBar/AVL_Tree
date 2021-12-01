@@ -1,3 +1,5 @@
+import java.util.List;
+
 /**
  *
  * AVLTree
@@ -9,6 +11,27 @@
 
 public class AVLTree {
 
+	private IAVLNode virtualLeaf = new AVLNode();
+	private IAVLNode root = virtualLeaf;
+	private IAVLNode min;
+	private IAVLNode max;
+
+	/**
+	 * empty constructor
+	 */
+	public AVLTree() {	}
+
+	/**
+	 * non empty constructor
+	 * gets a list of AVLNodes and insert them to the tree
+	 * for debugging
+	 */
+	public AVLTree(List<IAVLNode> nodes) {
+		for (IAVLNode node : nodes) {
+			this.insert(node.getKey(), node.getValue());
+		}
+	}
+
   /**
    * public boolean empty()
    *
@@ -16,18 +39,26 @@ public class AVLTree {
    *
    */
   public boolean empty() {
-    return false; // to be replaced by student code
+  	if (this.root == virtualLeaf) {
+  		return true;
+	}
+  	return false;
   }
 
- /**
+  private IAVLNode treePosition(int k, IAVLNode root) {
+	IAVLNode p = this.root;
+
+	while
+  }
+
+	/**
    * public String search(int k)
    *
    * Returns the info of an item with key k if it exists in the tree.
    * otherwise, returns null.
    */
-  public String search(int k)
-  {
-	return "searchDefaultString";  // to be replaced by student code
+  public String search(int k) {
+
   }
 
   /**
@@ -177,51 +208,148 @@ public class AVLTree {
     * This class can and MUST be modified (It must implement IAVLNode).
     */
   public class AVLNode implements IAVLNode{
-		public int getKey()
-		{
-			return 423; // to be replaced by student code
+  		AVLNode left;
+  		AVLNode right;
+  		AVLNode parent;
+  		int rank = -1;
+  		int height = -1;
+  		int key = -1;
+  		String info = null;
+  		int size = 0;
+
+	   /**
+		* empty constructor
+		*/
+	   	public AVLNode() { }
+
+	   /**
+		* constructor for a given key and value
+		*/
+	   	public AVLNode(int key, String info) {
+  			this.key = key;
+  			this.info = info;
+  			this.size = 1;
 		}
-		public String getValue()
-		{
-			return "getValueDefault"; // to be replaced by student code
+
+	   /**
+		* @return this.key
+		*/
+		public int getKey() {
+			return this.key;
 		}
-		public void setLeft(IAVLNode node)
-		{
-			return; // to be replaced by student code
+
+	   /**
+		* @return this.info
+		*/
+		public String getValue() {
+			return this.info;
 		}
-		public IAVLNode getLeft()
-		{
-			return null; // to be replaced by student code
+
+	   /**
+		* @param node
+		* set this.left = node
+		*/
+		public void setLeft(IAVLNode node) {
+			if (node != null) {
+				this.left = node;
+			}
 		}
-		public void setRight(IAVLNode node)
-		{
-			return; // to be replaced by student code
+
+	   /**
+		* @return this.left
+		*/
+		public IAVLNode getLeft() {
+			return this.left;
 		}
-		public IAVLNode getRight()
-		{
-			return null; // to be replaced by student code
+
+	   /**
+		* @param node
+		* set this.right = node
+		*/
+		public void setRight(IAVLNode node) {
+			if (node != null) {
+				this.right = node;
+			}
 		}
-		public void setParent(IAVLNode node)
-		{
-			return; // to be replaced by student code
+
+	   /**
+		* @return this.right
+		*/
+		public IAVLNode getRight() {
+			return this.right;
 		}
-		public IAVLNode getParent()
-		{
-			return null; // to be replaced by student code
+
+	   /**
+		* @param node
+		* set this.parent = node
+		*/
+		public void setParent(IAVLNode node) {
+			if (node != null) {
+				this.parent = node;
+			}
 		}
-		public boolean isRealNode()
-		{
-			return true; // to be replaced by student code
+
+	   /**
+		* @return this.parent
+		*/
+		public IAVLNode getParent()	{
+			return this.parent;
 		}
-	    public void setHeight(int height)
-	    {
-	      return; // to be replaced by student code
+
+	   /**
+		* @return true if not virtualNode
+		*/
+		public boolean isRealNode() {
+			if (this.key != -1) {
+				return true;
+			}
+			return false;
+		}
+
+	   /**
+		* @param height
+		* set this.height = this.rank
+		*/
+	    public void setHeight(int height) {
+	      this.height = height;
 	    }
-	    public int getHeight()
-	    {
-	      return 424; // to be replaced by student code
+
+	   /**
+		* @return this.height
+		*/
+	   public int getHeight() {
+	   	  return this.height;
+	   }
+
+	   /**
+		* @return this.rank
+		*/
+	   public int getRank() {
+	      return this.rank;
 	    }
-  }
+
+	   /**
+		* set the rank of the node to be the maximum between his children ranks + 1
+		*/
+	   public void setRank() {
+		   this.rank = Math.max(this.right.getRank(), this.left.getRank()) + 1;
+	   }
+
+	   /**
+		* @return this.size
+		*/
+	   public int getSize() {
+			return this.size;
+		}
+
+	   /**
+		* set the size of ths sub tree to be the sum of children sizes + 1
+		*/
+	   public void setSize() {
+		   this.size = this.right.getSize() + this.left.getSize() + 1;
+	   }
+
+   }
 
 }
   
