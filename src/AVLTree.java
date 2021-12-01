@@ -26,160 +26,297 @@ public class AVLTree {
 	 * gets a list of AVLNodes and insert them to the tree
 	 * for debugging
 	 */
-	public AVLTree(List<IAVLNode> nodes) {
-		for (IAVLNode node : nodes) {
-			this.insert(node.getKey(), node.getValue());
+	public AVLTree(int[] keys) {
+		char info = 'a';
+		for (int key : keys) {
+			this.insert(key, String.valueOf(info));
+			info = (char)(info + 1);
 		}
 	}
 
-  /**
-   * public boolean empty()
-   *
-   * Returns true if and only if the tree is empty.
-   *
-   */
-  public boolean empty() {
-  	if (this.root == virtualLeaf) {
-  		return true;
+	/**
+	* public boolean empty()
+	*
+	* Returns true if and only if the tree is empty.
+	*
+	*/
+	public boolean empty() {
+		if (this.root == virtualLeaf) {
+			return true;
+		}
+		return false;
 	}
-  	return false;
-  }
-
-  private IAVLNode treePosition(int k, IAVLNode root) {
-	IAVLNode p = this.root;
-
-	while
-  }
 
 	/**
-   * public String search(int k)
-   *
-   * Returns the info of an item with key k if it exists in the tree.
-   * otherwise, returns null.
-   */
-  public String search(int k) {
+	 * binary search for node with key == k
+	 * @return node when node.key == k, else the parent of the node
+	 */
+	private IAVLNode treePosition(int k, IAVLNode root) {
+		IAVLNode p = this.root;
 
-  }
+		while (p.getLeft() != this.virtualLeaf && p.getRight() != this.virtualLeaf) {
+			if (p.getKey() == k) {
+				return p;
+			} else if (p.getKey() > k) {  //if node.key < k continue with smaller keys on the lest child
+				if (p.getLeft().isRealNode()) {
+					p = p.getLeft();
+				} else {   //if there is no child - return the parent
+					return p;
+				}
+			} else {   //if node.key > k continue with bigger keys on the right child
+				if (p.getRight().isRealNode()) {
+					p = p.getRight();
+				} else {    //if there is no child - return the parent
+					return p;
+				}
+			}
+		}
+		return p;
+	}
 
-  /**
-   * public int insert(int k, String i)
-   *
-   * Inserts an item with key k and info i to the AVL tree.
-   * The tree must remain valid, i.e. keep its invariants.
-   * Returns the number of re-balancing operations, or 0 if no re-balancing operations were necessary.
-   * A promotion/rotation counts as one re-balance operation, double-rotation is counted as 2.
-   * Returns -1 if an item with key k already exists in the tree.
-   */
-   public int insert(int k, String i) {
+	/**
+	* public String search(int k)
+	*
+	* Returns the info of an item with key k if it exists in the tree.
+	* otherwise, returns null.
+	*/
+	public String search(int k) {
+
+	}
+
+	/**
+	* public int insert(int k, String i)
+	*
+	* Inserts an item with key k and info i to the AVL tree.
+	* The tree must remain valid, i.e. keep its invariants.
+	* Returns the number of re-balancing operations, or 0 if no re-balancing operations were necessary.
+	* A promotion/rotation counts as one re-balance operation, double-rotation is counted as 2.
+	* Returns -1 if an item with key k already exists in the tree.
+	*/
+	public int insert(int k, String i) {
 	  return 420;	// to be replaced by student code
-   }
+	}
 
-  /**
-   * public int delete(int k)
-   *
-   * Deletes an item with key k from the binary tree, if it is there.
-   * The tree must remain valid, i.e. keep its invariants.
-   * Returns the number of re-balancing operations, or 0 if no re-balancing operations were necessary.
-   * A promotion/rotation counts as one re-balance operation, double-rotation is counted as 2.
-   * Returns -1 if an item with key k was not found in the tree.
-   */
-   public int delete(int k)
-   {
+	/**
+	* public int delete(int k)
+	*
+	* Deletes an item with key k from the binary tree, if it is there.
+	* The tree must remain valid, i.e. keep its invariants.
+	* Returns the number of re-balancing operations, or 0 if no re-balancing operations were necessary.
+	* A promotion/rotation counts as one re-balance operation, double-rotation is counted as 2.
+	* Returns -1 if an item with key k was not found in the tree.
+	*/
+	public int delete(int k)
+	{
 	   return 421;	// to be replaced by student code
-   }
+	}
 
-   /**
-    * public String min()
-    *
-    * Returns the info of the item with the smallest key in the tree,
-    * or null if the tree is empty.
-    */
-   public String min()
-   {
+
+	/**
+	 *
+	 * @param x
+	 * @return
+	 */
+	private IAVLNode deleteLeaf(IAVLNode x) {
+
+	}
+
+	/**
+	 *
+	 * @param x
+	 * @return
+	 */
+	private IAVLNode deleteUnar(IAVLNode x) {
+
+	}
+
+	/**
+	 *
+	 * @param x
+	 * @return
+	 */
+	private IAVLNode deleteDouble(IAVLNode x) {
+
+	}
+
+	/**
+	 *
+	 * @param x
+	 * @param countActions
+	 * @return
+	 */
+	private int rebalance(IAVLNode x, int countActions) {
+
+	}
+
+	/**
+	 *
+	 * @param x
+	 * @return
+	 */
+	private int promote(IAVLNode x) {
+
+	}
+
+	/**
+	 *
+	 * @param x
+	 * @return
+	 */
+	private int demote(IAVLNode x) {
+
+	}
+
+	/**
+	 *
+	 * @param x
+	 * @param y
+	 * @return
+	 */
+	private int rotateRight(IAVLNode x, IAVLNode y) {
+
+	}
+
+	/**
+	 *
+	 * @param x
+	 * @param y
+	 * @return
+	 */
+	private int rotateLeft(IAVLNode x, IAVLNode y) {
+
+	}
+
+	/**
+	 *
+	 * @param x
+	 * @param y
+	 * @return
+	 */
+	private int doubleRotateRight(IAVLNode x, IAVLNode y) {
+
+	}
+
+	/**
+	 *
+	 * @param x
+	 * @param y
+	 * @return
+	 */
+	private int doubleRotateLeft(IAVLNode x, IAVLNode y) {
+
+	}
+
+	/**
+	 *
+	 * @param x
+	 * @return
+	 */
+	private IAVLNode successor(IAVLNode x) {
+
+	}
+
+	/**
+	 *
+	 * @param x
+	 * @return
+	 */
+	private IAVLNode predecessor(IAVLNode x) {
+
+	}
+
+	/**
+	* public String min()
+	*
+	* Returns the info of the item with the smallest key in the tree,
+	* or null if the tree is empty.
+	*/
+	public String min()
+	{
 	   return "minDefaultString"; // to be replaced by student code
-   }
+	}
 
-   /**
-    * public String max()
-    *
-    * Returns the info of the item with the largest key in the tree,
-    * or null if the tree is empty.
-    */
-   public String max()
-   {
+	/**
+	* public String max()
+	*
+	* Returns the info of the item with the largest key in the tree,
+	* or null if the tree is empty.
+	*/
+	public String max()
+	{
 	   return "maxDefaultString"; // to be replaced by student code
-   }
+	}
 
-  /**
-   * public int[] keysToArray()
-   *
-   * Returns a sorted array which contains all keys in the tree,
-   * or an empty array if the tree is empty.
-   */
-  public int[] keysToArray()
-  {
-        return new int[33]; // to be replaced by student code
-  }
+	/**
+	* public int[] keysToArray()
+	*
+	* Returns a sorted array which contains all keys in the tree,
+	* or an empty array if the tree is empty.
+	*/
+	public int[] keysToArray()
+	{
+		return new int[33]; // to be replaced by student code
+	}
 
-  /**
-   * public String[] infoToArray()
-   *
-   * Returns an array which contains all info in the tree,
-   * sorted by their respective keys,
-   * or an empty array if the tree is empty.
-   */
-  public String[] infoToArray()
-  {
-        return new String[55]; // to be replaced by student code
-  }
+	/**
+	* public String[] infoToArray()
+	*
+	* Returns an array which contains all info in the tree,
+	* sorted by their respective keys,
+	* or an empty array if the tree is empty.
+	*/
+	public String[] infoToArray()
+	{
+		return new String[55]; // to be replaced by student code
+	}
 
-   /**
-    * public int size()
-    *
-    * Returns the number of nodes in the tree.
-    */
-   public int size()
-   {
+	/**
+	* public int size()
+	*
+	* Returns the number of nodes in the tree.
+	*/
+	public int size()
+	{
 	   return 422; // to be replaced by student code
-   }
-   
-   /**
-    * public int getRoot()
-    *
-    * Returns the root AVL node, or null if the tree is empty
-    */
-   public IAVLNode getRoot()
-   {
+	}
+
+	/**
+	* public int getRoot()
+	*
+	* Returns the root AVL node, or null if the tree is empty
+	*/
+	public IAVLNode getRoot()
+	{
 	   return null;
-   }
-   
-   /**
-    * public AVLTree[] split(int x)
-    *
-    * splits the tree into 2 trees according to the key x. 
-    * Returns an array [t1, t2] with two AVL trees. keys(t1) < x < keys(t2).
-    * 
+	}
+
+	/**
+	* public AVLTree[] split(int x)
+	*
+	* splits the tree into 2 trees according to the key x.
+	* Returns an array [t1, t2] with two AVL trees. keys(t1) < x < keys(t2).
+	*
 	* precondition: search(x) != null (i.e. you can also assume that the tree is not empty)
-    * postcondition: none
-    */   
-   public AVLTree[] split(int x)
-   {
-	   return null; 
-   }
-   
-   /**
-    * public int join(IAVLNode x, AVLTree t)
-    *
-    * joins t and x with the tree. 	
-    * Returns the complexity of the operation (|tree.rank - t.rank| + 1).
+	* postcondition: none
+	*/
+	public AVLTree[] split(int x)
+	{
+	   return null;
+	}
+
+	/**
+	* public int join(IAVLNode x, AVLTree t)
+	*
+	* joins t and x with the tree.
+	* Returns the complexity of the operation (|tree.rank - t.rank| + 1).
 	*
 	* precondition: keys(t) < x < keys() or keys(t) > x > keys(). t/tree might be empty (rank = -1).
-    * postcondition: none
-    */   
-   public int join(IAVLNode x, AVLTree t)
-   {
+	* postcondition: none
+	*/
+	public int join(IAVLNode x, AVLTree t)
+	{
 	   return -1;
-   }
+	}
 
 	/** 
 	 * public interface IAVLNode
@@ -199,53 +336,53 @@ public class AVLTree {
     	public int getHeight(); // Returns the height of the node (-1 for virtual nodes).
 	}
 
-   /** 
-    * public class AVLNode
-    *
-    * If you wish to implement classes other than AVLTree
-    * (for example AVLNode), do it in this file, not in another file. 
-    * 
-    * This class can and MUST be modified (It must implement IAVLNode).
-    */
-  public class AVLNode implements IAVLNode{
-  		AVLNode left;
-  		AVLNode right;
-  		AVLNode parent;
-  		int rank = -1;
-  		int height = -1;
-  		int key = -1;
-  		String info = null;
-  		int size = 0;
+	/**
+	* public class AVLNode
+	*
+	* If you wish to implement classes other than AVLTree
+	* (for example AVLNode), do it in this file, not in another file.
+	*
+	* This class can and MUST be modified (It must implement IAVLNode).
+	*/
+	public class AVLNode implements IAVLNode{
+		AVLNode left;
+		AVLNode right;
+		AVLNode parent;
+		int rank = -1;
+		int height = -1;
+		int key = -1;
+		String info = null;
+		int size = 0;
 
-	   /**
+		/**
 		* empty constructor
 		*/
-	   	public AVLNode() { }
+		public AVLNode() { }
 
-	   /**
+		/**
 		* constructor for a given key and value
 		*/
-	   	public AVLNode(int key, String info) {
-  			this.key = key;
-  			this.info = info;
-  			this.size = 1;
+		public AVLNode(int key, String info) {
+			this.key = key;
+			this.info = info;
+			this.size = 1;
 		}
 
-	   /**
+		/**
 		* @return this.key
 		*/
 		public int getKey() {
 			return this.key;
 		}
 
-	   /**
+		/**
 		* @return this.info
 		*/
 		public String getValue() {
 			return this.info;
 		}
 
-	   /**
+		/**
 		* @param node
 		* set this.left = node
 		*/
@@ -255,14 +392,14 @@ public class AVLTree {
 			}
 		}
 
-	   /**
+		/**
 		* @return this.left
 		*/
 		public IAVLNode getLeft() {
 			return this.left;
 		}
 
-	   /**
+		/**
 		* @param node
 		* set this.right = node
 		*/
@@ -272,14 +409,14 @@ public class AVLTree {
 			}
 		}
 
-	   /**
+		/**
 		* @return this.right
 		*/
 		public IAVLNode getRight() {
 			return this.right;
 		}
 
-	   /**
+		/**
 		* @param node
 		* set this.parent = node
 		*/
@@ -289,14 +426,14 @@ public class AVLTree {
 			}
 		}
 
-	   /**
+		/**
 		* @return this.parent
 		*/
 		public IAVLNode getParent()	{
 			return this.parent;
 		}
 
-	   /**
+		/**
 		* @return true if not virtualNode
 		*/
 		public boolean isRealNode() {
@@ -306,48 +443,48 @@ public class AVLTree {
 			return false;
 		}
 
-	   /**
+		/**
 		* @param height
 		* set this.height = this.rank
 		*/
-	    public void setHeight(int height) {
-	      this.height = height;
-	    }
+		public void setHeight(int height) {
+			this.height = height;
+		}
 
-	   /**
+		/**
 		* @return this.height
 		*/
-	   public int getHeight() {
-	   	  return this.height;
-	   }
+		public int getHeight() {
+			return this.height;
+		}
 
-	   /**
+		/**
 		* @return this.rank
 		*/
-	   public int getRank() {
-	      return this.rank;
-	    }
+		public int getRank() {
+			return this.rank;
+		}
 
-	   /**
+		/**
 		* set the rank of the node to be the maximum between his children ranks + 1
 		*/
-	   public void setRank() {
-		   this.rank = Math.max(this.right.getRank(), this.left.getRank()) + 1;
-	   }
+		public void setRank() {
+			this.rank = Math.max(this.right.getRank(), this.left.getRank()) + 1;
+		}
 
-	   /**
+		/**
 		* @return this.size
 		*/
-	   public int getSize() {
+		public int getSize() {
 			return this.size;
 		}
 
-	   /**
+		/**
 		* set the size of ths sub tree to be the sum of children sizes + 1
 		*/
-	   public void setSize() {
-		   this.size = this.right.getSize() + this.left.getSize() + 1;
-	   }
+		public void setSize() {
+			this.size = this.right.getSize() + this.left.getSize() + 1;
+		}
 
    }
 
