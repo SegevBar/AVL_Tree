@@ -171,6 +171,33 @@ public class AVLTree {
 	* Returns -1 if an item with key k was not found in the tree.
 	*/
 	public int delete(int k) {
+		int rebalanceActions = 0;
+		IAVLNode x = this.treePosition(k);
+
+		//if there is no node with the key k in the tree - return -1
+		if (max.getKey() != k) {
+			return -1;
+		}
+
+		//update min to it's successor if k is the key of the current minimum node
+		if (this.min.getKey() == k) {
+			IAVLNode successor = this.findSuccessor(this.min);
+			this.min = successor;
+		}
+		//update max to its' predecessor if k is the key of the current maximum node
+		if (this.max.getKey() == k) {
+			IAVLNode predecessor = this.findPredecessor(this.max);
+			this.max = predecessor;
+		}
+
+		//check if k node is a leaf
+		if (!x.getRight().isRealNode() && !x.getLeft().isRealNode()) {
+			IAVLNode y = this.deleteLeaf(x);
+		}
+		
+
+
+
 
 	}
 
@@ -275,7 +302,7 @@ public class AVLTree {
 	 * @param x
 	 * @return
 	 */
-	private IAVLNode successor(IAVLNode x) {
+	private IAVLNode findSuccessor(IAVLNode x) {
 
 	}
 
@@ -284,7 +311,7 @@ public class AVLTree {
 	 * @param x
 	 * @return
 	 */
-	private IAVLNode predecessor(IAVLNode x) {
+	private IAVLNode findPredecessor(IAVLNode x) {
 
 	}
 
