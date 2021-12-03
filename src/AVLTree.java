@@ -1,4 +1,5 @@
 import java.util.List;
+import java.util.Stack;
 
 /**
  *
@@ -117,7 +118,7 @@ public class AVLTree {
 			firstNode.setLeft(this.virtualLeaf);
 			firstNode.setParent(this.virtualLeaf);
 			firstNode.setHeight(0);
-			firstNode.setRank();
+			firstNode.resetRank();
 			firstNode.setSize();
 		}
 		//otherwise - find the position to add the new node, add and rebalance
@@ -133,7 +134,7 @@ public class AVLTree {
 			child.setLeft(this.virtualLeaf);
 			child.setParent(parent);
 			child.setHeight(0);
-			child.setRank();
+			child.resetRank();
 			child.setSize();
 
 			//add the new node as left child if k is smaller, or right child if k is bigger than parent's key
@@ -194,7 +195,7 @@ public class AVLTree {
 		if (!x.getRight().isRealNode() && !x.getLeft().isRealNode()) {
 			IAVLNode y = this.deleteLeaf(x);
 		}
-		
+
 
 
 
@@ -245,7 +246,8 @@ public class AVLTree {
 	 * @return
 	 */
 	private int promote(IAVLNode x) {
-
+		x.setTempRank(x.getRank() + 1);
+		return 1;
 	}
 
 	/**
@@ -254,7 +256,8 @@ public class AVLTree {
 	 * @return
 	 */
 	private int demote(IAVLNode x) {
-
+		x.setTempRank(x.getRank() - 1);
+		return 1;
 	}
 
 	/**
@@ -264,7 +267,17 @@ public class AVLTree {
 	 * @return
 	 */
 	private int rotateRight(IAVLNode x, IAVLNode y) {
+		//if the rotation involves the tree root - update it accordingly
+		if (x == this.root) {
+			this.root = y;
+		}
+		//switch pointers
+		x.setLeft(y.getRight());
+		x.getLeft().setParent(x);
+		y.setRight(x);
+		x.setParent(y);
 
+		return 1;
 	}
 
 	/**
@@ -274,7 +287,17 @@ public class AVLTree {
 	 * @return
 	 */
 	private int rotateLeft(IAVLNode x, IAVLNode y) {
+		//if the rotation involves the tree root - update it accordingly
+		if (x == this.root) {
+			this.root = y;
+		}
+		//switch pointers
+		x.setRight(y.getLeft());
+		x.getRight().setParent(x);
+		y.setLeft(x);
+		x.setParent(y);
 
+		return 1;
 	}
 
 	/**
@@ -284,7 +307,15 @@ public class AVLTree {
 	 * @return
 	 */
 	private int doubleRotateRight(IAVLNode x, IAVLNode y) {
-
+		IAVLNode z = y.getRight();
+		//if the rotation involves the tree root - update it accordingly
+		if (x == this.root) {
+			this.root = z;
+		}
+		//switch pointers
+		this.rotateLeft(y,z);
+		this.rotateRight(x,z);
+		return 2;
 	}
 
 	/**
@@ -294,7 +325,15 @@ public class AVLTree {
 	 * @return
 	 */
 	private int doubleRotateLeft(IAVLNode x, IAVLNode y) {
-
+		IAVLNode z = y.getRight();
+		//if the rotation involves the tree root - update it accordingly
+		if (x == this.root) {
+			this.root = z;
+		}
+		//switch pointers
+		this.rotateRight(y,z);
+		this.rotateLeft(x,z);
+		return 2;
 	}
 
 	/**
@@ -303,7 +342,31 @@ public class AVLTree {
 	 * @return
 	 */
 	private IAVLNode findSuccessor(IAVLNode x) {
+		//if x is max - it has no successor
+		if (x == this.max) {
+			return null;
+		}
 
+		//successor algorithm
+		IAVLNode curr = x;
+		if (curr.getRight().isRealNode()) {
+			curr = curr.getRight();
+			while (curr.getLeft().isRealNode()) {
+				curr = curr.getLeft();
+			}
+			return curr;
+		}
+		else {
+			IAVLNode parent = curr.getParent();
+			while (parent.isRealNode() && parent.getRight() == curr) {
+				curr = curr.getParent();
+				parent = parent.getParent();
+			}
+			if (parent.getLeft() == curr) {
+				return parent;
+			}
+		}
+		return curr;
 	}
 
 	/**
@@ -312,7 +375,31 @@ public class AVLTree {
 	 * @return
 	 */
 	private IAVLNode findPredecessor(IAVLNode x) {
+		//if x is min - it has no predecessor
+		if (x == this.min) {
+			return null;
+		}
 
+		//predecessor algorithm
+		IAVLNode curr = x;
+		if (curr.getLeft().isRealNode()) {
+			curr = curr.getLeft();
+			while (curr.getRight().isRealNode()) {
+				curr = curr.getRight();
+			}
+			return curr;
+		}
+		else {
+			IAVLNode parent = curr.getParent();
+			while (parent.isRealNode() && parent.getLeft() == curr) {
+				curr = curr.getParent();
+				parent = parent.getParent();
+			}
+			if (parent.getRight() == curr) {
+				return parent;
+			}
+		}
+		return curr;
 	}
 
 	/**
@@ -342,7 +429,23 @@ public class AVLTree {
 	* or an empty array if the tree is empty.
 	*/
 	public int[] keysToArray() {
-		return new int[33]; // to be replaced by student code
+		//create an empty array to return
+		int[] orederedKeys = new int[this.size()];
+		//create a help stack
+		Stack<IAVLNode> helpStack = new Stack<>();
+
+		//inOrder using a stack
+		IAVLNode curr = this.root;
+		for (int i = 0; i < orederedKeys.length; i++) {
+			while (curr.getLeft().isRealNode()) {
+				helpStack.push(curr);
+				curr = curr.getLeft();
+			}
+			curr = helpStack.pop();
+			orederedKeys[i] = curr.getKey();
+			curr = curr.getRight();
+		}
+		return orederedKeys;
 	}
 
 	/**
@@ -353,15 +456,36 @@ public class AVLTree {
 	* or an empty array if the tree is empty.
 	*/
 	public String[] infoToArray() {
-		return new String[55]; // to be replaced by student code
+		//create an empty array to return
+		String[] orederedInfo = new String[this.size()];
+		//create a help stack
+		Stack<IAVLNode> helpStack = new Stack<>();
+
+		//inOrder using a stack
+		IAVLNode curr = this.root;
+		for (int i = 0; i < orederedInfo.length; i++) {
+			while (curr.getLeft().isRealNode()) {
+				helpStack.push(curr);
+				curr = curr.getLeft();
+			}
+			curr = helpStack.pop();
+			orederedInfo[i] = curr.getValue();
+			curr = curr.getRight();
+		}
+		return orederedInfo;
 	}
 
 	/**
-	 *
-	 * @param x
+	 * Update size of node x and all the way to the root
 	 */
 	private void updateSize(IAVLNode x) {
+		IAVLNode p = x;
 
+		//update size from x to the root with setSize()
+		while (p.getParent().isRealNode()) {
+			p.setSize();
+			p = p.getParent();
+		}
 	}
 
 	/**
@@ -425,9 +549,12 @@ public class AVLTree {
     	public void setHeight(int height); // Sets the height of the node.
     	public int getHeight(); // Returns the height of the node (-1 for virtual nodes).
 
-		public void setRank(); //sets the rank of the node
+		public int getRank(); //return current rank
+		public void resetRank(); //sets the rank of the node
+		public void setTempRank(int delta); //set specific rank value
 		public void setSize(); //sets the size of the node's sub tree
 		public int getSize(); //return the size veriable of the node
+
 	}
 
 	/**
@@ -560,9 +687,16 @@ public class AVLTree {
 		}
 
 		/**
+		 * set specific rank value
+		 */
+		public void setTempRank(int rank) {
+			this.rank = rank;
+		}
+
+		/**
 		* set the rank of the node to be the maximum between his children ranks + 1
 		*/
-		public void setRank() {
+		public void resetRank() {
 			this.rank = Math.max(this.right.getRank(), this.left.getRank()) + 1;
 		}
 
