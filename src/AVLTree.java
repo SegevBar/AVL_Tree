@@ -226,7 +226,7 @@ public class AVLTree {
 
 	/**
 	 *
-	 * complexity :
+	 * complexity : O(1)
 	 */
 	private IAVLNode deleteLeaf(IAVLNode x) {
 		IAVLNode y = x.getParent();
@@ -251,7 +251,7 @@ public class AVLTree {
 
 	/**
 	 *
-	 * complexity :
+	 * complexity : O(1)
 	 */
 	private IAVLNode deleteUnar(IAVLNode x) {
 		boolean rightChild = false;
@@ -303,7 +303,7 @@ public class AVLTree {
 
 	/**
 	 *
-	 * complexity :
+	 * complexity : O(1)
 	 */
 	private IAVLNode deleteDouble(IAVLNode x) {
 		IAVLNode y = this.findSuccessor(x);
@@ -345,7 +345,7 @@ public class AVLTree {
 
 	/**
 	 *
-	 * complexity :
+	 * complexity : O(log n)
 	 */
 	private int rebalance(IAVLNode x, int countActions) {
 		int rankDeltaRight = x.getRank() - x.getRight().getRank();
@@ -438,7 +438,7 @@ public class AVLTree {
 
 	/**
 	 *
-	 * complexity :
+	 * complexity : O(1)
 	 */
 	private int promote(IAVLNode x) {
 		x.setTempRank(x.getRank() + 1);
@@ -447,7 +447,7 @@ public class AVLTree {
 
 	/**
 	 *
-	 * complexity :
+	 * complexity : O(1)
 	 */
 	private int demote(IAVLNode x) {
 		x.setTempRank(x.getRank() - 1);
@@ -456,7 +456,7 @@ public class AVLTree {
 
 	/**
 	 *
-	 * complexity :
+	 * complexity : O(1)
 	 */
 	private int rotateRight(IAVLNode x, IAVLNode y) {
 		//if the rotation involves the tree root - update it accordingly
@@ -474,7 +474,7 @@ public class AVLTree {
 
 	/**
 	 *
-	 * complexity :
+	 * complexity : O(1)
 	 */
 	private int rotateLeft(IAVLNode x, IAVLNode y) {
 		//if the rotation involves the tree root - update it accordingly
@@ -492,7 +492,7 @@ public class AVLTree {
 
 	/**
 	 *
-	 * complexity :
+	 * complexity : O(1)
 	 */
 	private int doubleRotateRight(IAVLNode x, IAVLNode y) {
 		IAVLNode z = y.getRight();
@@ -508,7 +508,7 @@ public class AVLTree {
 
 	/**
 	 *
-	 * complexity :
+	 * complexity : O(1)
 	 */
 	private int doubleRotateLeft(IAVLNode x, IAVLNode y) {
 		IAVLNode z = y.getRight();
@@ -524,7 +524,7 @@ public class AVLTree {
 
 	/**
 	 *
-	 * complexity :
+	 * complexity : O(log n)
 	 */
 	private IAVLNode findSuccessor(IAVLNode x) {
 		//if x is max - it has no successor
@@ -556,7 +556,7 @@ public class AVLTree {
 
 	/**
 	 *
-	 * complexity :
+	 * complexity : O(log n)
 	 */
 	private IAVLNode findPredecessor(IAVLNode x) {
 		//if x is min - it has no predecessor
@@ -592,7 +592,7 @@ public class AVLTree {
 	* Returns the info of the item with the smallest key in the tree,
 	* or null if the tree is empty.
 	 *
-	 * complexity :
+	 * complexity : O(1)
 	*/
 	public String min()	{
 		return this.min.getValue();
@@ -604,7 +604,7 @@ public class AVLTree {
 	* Returns the info of the item with the largest key in the tree,
 	* or null if the tree is empty.
 	 *
-	 * complexity :
+	 * complexity : O(1)
 	*/
 	public String max()	{
 		return this.max.getValue();
@@ -616,7 +616,7 @@ public class AVLTree {
 	* Returns a sorted array which contains all keys in the tree,
 	* or an empty array if the tree is empty.
 	 *
-	 * complexity :
+	 * complexity : O(n)
 	*/
 	public int[] keysToArray() {
 		//create an empty array to return
@@ -645,7 +645,7 @@ public class AVLTree {
 	* sorted by their respective keys,
 	* or an empty array if the tree is empty.
 	 *
-	 * complexity :
+	 * complexity : O(n)
 	*/
 	public String[] infoToArray() {
 		//create an empty array to return
@@ -670,7 +670,7 @@ public class AVLTree {
 	/**
 	 * Update size of node x and all the way to the root
 	 *
-	 * complexity :
+	 * complexity : O(log n)
 	 */
 	private void updateSize(IAVLNode x) {
 		IAVLNode p = x;
@@ -687,10 +687,10 @@ public class AVLTree {
 	*
 	* Returns the number of nodes in the tree.
 	 *
-	 * complexity :
+	 * complexity : O(1)
 	*/
 	public int size() {
-	   return return this.root.getSize();
+	   return this.root.getSize();
 	}
 
 	/**
@@ -698,7 +698,7 @@ public class AVLTree {
 	*
 	* Returns the root AVL node, or null if the tree is empty
 	 *
-	 * complexity :
+	 * complexity : O(1)
 	*/
 	public IAVLNode getRoot() {
 		return this.root;
@@ -769,12 +769,12 @@ public class AVLTree {
 	*
 	* This class can and MUST be modified (It must implement IAVLNode).
 	 *
-	 * complexity :
+	 * complexity : O(1)
 	*/
 	public class AVLNode implements IAVLNode{
-		AVLNode left;
-		AVLNode right;
-		AVLNode parent;
+		IAVLNode left;
+		IAVLNode right;
+		IAVLNode parent;
 		int rank = -1;
 		int height = -1;
 		int key = -1;
@@ -798,7 +798,7 @@ public class AVLTree {
 		/**
 		* return this.key
 		 *
-		 * complexity :
+		 * complexity : O(1)
 		*/
 		public int getKey() {
 			return this.key;
@@ -807,7 +807,7 @@ public class AVLTree {
 		/**
 		* return this.info
 		 *
-		 * complexity :
+		 * complexity : O(1)
 		*/
 		public String getValue() {
 			return this.info;
@@ -816,7 +816,7 @@ public class AVLTree {
 		/**
 		* set this.left = node
 		 *
-		 * complexity :
+		 * complexity : O(1)
 		*/
 		public void setLeft(IAVLNode node) {
 			if (node != null) {
@@ -827,7 +827,7 @@ public class AVLTree {
 		/**
 		* return this.left
 		 *
-		 * complexity :
+		 * complexity : O(1)
 		*/
 		public IAVLNode getLeft() {
 			return this.left;
@@ -836,7 +836,7 @@ public class AVLTree {
 		/**
 		* set this.right = node
 		 *
-		 * complexity :
+		 * complexity : O(1)
 		*/
 		public void setRight(IAVLNode node) {
 			if (node != null) {
@@ -847,7 +847,7 @@ public class AVLTree {
 		/**
 		* return this.right
 		 *
-		 * complexity :
+		 * complexity : O(1)
 		*/
 		public IAVLNode getRight() {
 			return this.right;
@@ -856,7 +856,7 @@ public class AVLTree {
 		/**
 		* set this.parent = node
 		 *
-		 * complexity :
+		 * complexity : O(1)
 		*/
 		public void setParent(IAVLNode node) {
 			if (node != null) {
@@ -867,7 +867,7 @@ public class AVLTree {
 		/**
 		* return this.parent
 		 *
-		 * complexity :
+		 * complexity : O(1)
 		*/
 		public IAVLNode getParent()	{
 			return this.parent;
@@ -876,7 +876,7 @@ public class AVLTree {
 		/**
 		* return true if not virtualNode
 		 *
-		 * complexity :
+		 * complexity : O(1)
 		*/
 		public boolean isRealNode() {
 			if (this.key != -1) {
@@ -888,7 +888,7 @@ public class AVLTree {
 		/**
 		* set this.height = this.rank
 		 *
-		 * complexity :
+		 * complexity : O(1)
 		*/
 		public void setHeight(int height) {
 			this.height = height;
@@ -897,7 +897,7 @@ public class AVLTree {
 		/**
 		* return this.height
 		 *
-		 * complexity :
+		 * complexity : O(1)
 		*/
 		public int getHeight() {
 			return this.height;
@@ -906,7 +906,7 @@ public class AVLTree {
 		/**
 		* return this.rank
 		 *
-		 * complexity :
+		 * complexity : O(1)
 		*/
 		public int getRank() {
 			return this.rank;
@@ -915,7 +915,7 @@ public class AVLTree {
 		/**
 		 * set specific rank value
 		 *
-		 * complexity :
+		 * complexity : O(1)
 		 */
 		public void setTempRank(int rank) {
 			this.rank = rank;
@@ -924,7 +924,7 @@ public class AVLTree {
 		/**
 		* set the rank of the node to be the maximum between his children ranks + 1
 		 *
-		 * complexity :
+		 * complexity : O(1)
 		*/
 		public void resetRank() {
 			this.rank = Math.max(this.right.getRank(), this.left.getRank()) + 1;
@@ -933,7 +933,7 @@ public class AVLTree {
 		/**
 		* return this.size
 		 *
-		 * complexity :
+		 * complexity : O(1)
 		*/
 		public int getSize() {
 			return this.size;
@@ -942,11 +942,13 @@ public class AVLTree {
 		/**
 		* set the size of ths sub tree to be the sum of children sizes + 1
 		 *
-		 * complexity :
+		 * complexity : O(1)
 		*/
 		public void setSize() {
 			this.size = this.right.getSize() + this.left.getSize() + 1;
 		}
+
+
 
    }
 
