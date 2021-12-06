@@ -13,8 +13,7 @@ public class AVLTreePrint extends AVLTree {
         for (int key : keys) {
             this.insert(key, String.valueOf("num" + key));
             this.bfs_print();
-            System.out.println();
-            System.out.println();
+
             System.out.println();
         }
     }

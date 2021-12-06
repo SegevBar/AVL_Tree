@@ -1,5 +1,3 @@
-import java.util.Arrays;
-import java.util.List;
 import java.util.Stack;
 
 /**
@@ -126,7 +124,6 @@ public class AVLTree {
 			firstNode.setLeft(this.virtualLeaf);
 			firstNode.setParent(this.virtualLeaf);
 			firstNode.setHeight(0);
-			firstNode.resetRank();
 			firstNode.setSize();
 		}
 		//otherwise - find the position to add the new node, add and rebalance
@@ -142,7 +139,6 @@ public class AVLTree {
 			child.setLeft(this.virtualLeaf);
 			child.setParent(parent);
 			child.setHeight(0);
-			child.resetRank();
 			child.setSize();
 
 			//add the new node as left child if k is smaller, or right child if k is bigger than parent's key
@@ -165,7 +161,8 @@ public class AVLTree {
 			rebalanceActions += this.rebalance(parent, rebalanceActions);
 
 		}
-
+		this.virtualLeaf.setLeft(null);
+		this.virtualLeaf.setRight(null);
 		return rebalanceActions;
 	}
 
@@ -331,11 +328,11 @@ public class AVLTree {
 		y.setParent(x.getParent());
 		x.getRight().setParent(y);
 		x.getLeft().setParent(y);
+		y.setHeight(x.getHeight());
 
 		//if x was the tree root - update the root to point to y
 		if (this.root == x) {
 			this.root = y;
-			y.setParent(this.virtualLeaf);
 		}
 		//update x parents to point on y
 		else {
@@ -361,8 +358,8 @@ public class AVLTree {
 			return 0;
 		}
 
-		int rankDeltaRight = x.getRank() - x.getRight().getRank();
-		int rankDeltaLeft = x.getRank() - x.getLeft().getRank();
+		int rankDeltaRight = x.getHeight() - x.getRight().getHeight();
+		int rankDeltaLeft = x.getHeight() - x.getLeft().getHeight();
 
 		//if the rank delta is (1,1), (1,2), (2,1) add 0 to countActions
 		if ((rankDeltaRight == 1 && rankDeltaLeft == 1) || (rankDeltaRight == 1 && rankDeltaLeft == 2) || (rankDeltaRight == 2 && rankDeltaLeft == 1)) {
@@ -386,8 +383,8 @@ public class AVLTree {
 		//if the rank delta is (0,2)
 		else if (rankDeltaRight == 2 && rankDeltaLeft == 0) {
 			IAVLNode y = x.getLeft();
-			int rankDeltaLeftRight = y.getRank() - y.getRight().getRank();
-			int rankDeltaLeftLeft = y.getRank() - y.getLeft().getRank();
+			int rankDeltaLeftRight = y.getHeight() - y.getRight().getHeight();
+			int rankDeltaLeftLeft = y.getHeight() - y.getLeft().getHeight();
 			//if the rank delta of left child with his children is (1,2) - rotate right and demote x
 			if (rankDeltaLeftRight == 2 && rankDeltaLeftLeft == 1) {
 				countActions += this.rotateRight(x, y) + this.demote(x);
@@ -407,8 +404,8 @@ public class AVLTree {
 		//if the rank delta is (2,0)
 		else if (rankDeltaRight == 0 && rankDeltaLeft == 2) {
 			IAVLNode y = x.getRight();
-			int rankDeltaRightRight = y.getRank() - y.getRight().getRank();
-			int rankDeltaRightLeft = y.getRank() - y.getLeft().getRank();
+			int rankDeltaRightRight = y.getHeight() - y.getRight().getHeight();
+			int rankDeltaRightLeft = y.getHeight() - y.getLeft().getHeight();
 			//if the rank delta of right child with his children is (2,1) - rotate left and demote x
 			if (rankDeltaRightRight == 1 && rankDeltaRightLeft == 2) {
 				countActions += this.rotateLeft(x, y) + this.demote(x);
@@ -428,8 +425,8 @@ public class AVLTree {
 		//if the rank delta is (3,1)
 		else if (rankDeltaRight == 1 && rankDeltaLeft == 3) {
 			IAVLNode y = x.getRight();
-			int rankDeltaRightRight = y.getRank() - y.getRight().getRank();
-			int rankDeltaRightLeft = y.getRank() - y.getLeft().getRank();
+			int rankDeltaRightRight = y.getHeight() - y.getRight().getHeight();
+			int rankDeltaRightLeft = y.getHeight() - y.getLeft().getHeight();
 			//if the rank delta of right child with his children is (1,1) - rotate left and demote x and promote y
 			if (rankDeltaRightRight == 1 && rankDeltaRightLeft == 1) {
 				countActions += this.rotateLeft(x, y) + this.demote(x) + this.promote(y);
@@ -456,8 +453,8 @@ public class AVLTree {
 		//if the rank delta is (1,3)
 		else if (rankDeltaRight == 3 && rankDeltaLeft == 1) {
 			IAVLNode y = x.getLeft();
-			int rankDeltaLeftRight = y.getRank() - y.getRight().getRank();
-			int rankDeltaLeftLeft = y.getRank() - y.getLeft().getRank();
+			int rankDeltaLeftRight = y.getHeight() - y.getRight().getHeight();
+			int rankDeltaLeftLeft = y.getHeight() - y.getLeft().getHeight();
 			//if the rank delta of right child with his children is (1,1) - rotate right and demote x and promote y
 			if (rankDeltaLeftRight == 1 && rankDeltaLeftLeft == 1) {
 				countActions += this.rotateRight(x, y) + this.demote(x) + this.promote(y);
@@ -481,7 +478,8 @@ public class AVLTree {
 				countActions += this.rebalance(y.getParent().getParent(), countActions);
 			}
 		}
-
+		this.virtualLeaf.setLeft(null);
+		this.virtualLeaf.setRight(null);
 		return countActions;
 	}
 
@@ -490,7 +488,7 @@ public class AVLTree {
 	 * complexity : O(1)
 	 */
 	private int promote(IAVLNode x) {
-		x.setTempRank(x.getRank() + 1);
+		x.setHeight(x.getHeight() + 1);
 		return 1;
 	}
 
@@ -499,7 +497,7 @@ public class AVLTree {
 	 * complexity : O(1)
 	 */
 	private int demote(IAVLNode x) {
-		x.setTempRank(x.getRank() - 1);
+		x.setHeight(x.getHeight() - 1);
 		return 1;
 	}
 
@@ -511,6 +509,15 @@ public class AVLTree {
 		//if the rotation involves the tree root - update it accordingly
 		if (x == this.root) {
 			this.root = y;
+		}
+		//otherwise - update x parent pointer to y
+		else {
+			IAVLNode parent = x.getParent();
+			if (parent.getRight() == x) {
+				parent.setRight(y);
+			} else {
+				parent.setLeft(y);
+			}
 		}
 		//switch pointers
 		y.setParent(x.getParent());
@@ -530,6 +537,15 @@ public class AVLTree {
 		//if the rotation involves the tree root - update it accordingly
 		if (x == this.root) {
 			this.root = y;
+		}
+		//otherwise - update x parent pointer to y
+		else {
+			IAVLNode parent = x.getParent();
+			if (parent.getRight() == x) {
+				parent.setRight(y);
+			} else {
+				parent.setLeft(y);
+			}
 		}
 		//switch pointers
 		y.setParent(x.getParent());
@@ -647,9 +663,7 @@ public class AVLTree {
 	 * complexity : O(1)
 	*/
 	public String min()	{
-
 		return this.min.getValue();
-
 	}
 
 	/**
@@ -685,19 +699,15 @@ public class AVLTree {
 			return orederedKeys;
 		}
 		//inOrder using a stack
-		helpStack.push(curr);
 		for (int i = 0; i < orederedKeys.length; i++) {
-			while (curr.getLeft().isRealNode()) {
-				curr = curr.getLeft();
+			while (curr.isRealNode()) {
 				helpStack.push(curr);
+				curr = curr.getLeft();
+
 			}
-			if (!helpStack.isEmpty()) {
-				curr = helpStack.pop();
-			}
+			curr = helpStack.pop();
 			orederedKeys[i] = curr.getKey();
-			if (curr.getRight().isRealNode()) {
-				curr = curr.getRight();
-			}
+			curr = curr.getRight();
 		}
 		return orederedKeys;
 	}
@@ -724,19 +734,14 @@ public class AVLTree {
 			return orederedInfo;
 		}
 		//inOrder using a stack
-		helpStack.push(curr);
 		for (int i = 0; i < orederedInfo.length; i++) {
-			while (curr.getLeft().isRealNode()) {
-				curr = curr.getLeft();
+			while (curr.isRealNode()) {
 				helpStack.push(curr);
+				curr = curr.getLeft();
 			}
-			if (!helpStack.isEmpty()) {
-				curr = helpStack.pop();
-			}
+			curr = helpStack.pop();
 			orederedInfo[i] = curr.getValue();
-			if (curr.getRight().isRealNode()) {
-				curr = curr.getRight();
-			}
+			curr = curr.getRight();
 		}
 		return orederedInfo;
 	}
@@ -940,9 +945,6 @@ public class AVLTree {
     	public void setHeight(int height); // Sets the height of the node.
     	public int getHeight(); // Returns the height of the node (-1 for virtual nodes).
 
-		public int getRank(); //return current rank
-		public void resetRank(); //sets the rank of the node
-		public void setTempRank(int delta); //set specific rank value
 		public void setSize(); //sets the size of the node's sub tree
 		public int getSize(); //return the size veriable of the node
 	}
@@ -958,10 +960,9 @@ public class AVLTree {
 	 * complexity : O(1)
 	*/
 	public class AVLNode implements IAVLNode{
-		IAVLNode left;
-		IAVLNode right;
-		IAVLNode parent;
-		int rank = -1;
+		IAVLNode left = null;
+		IAVLNode right = null;
+		IAVLNode parent = null;
 		int height = -1;
 		int key = -1;
 		String info = null;
@@ -1005,9 +1006,7 @@ public class AVLTree {
 		 * complexity : O(1)
 		*/
 		public void setLeft(IAVLNode node) {
-			if (node != null) {
-				this.left = node;
-			}
+			this.left = node;
 		}
 
 		/**
@@ -1025,9 +1024,7 @@ public class AVLTree {
 		 * complexity : O(1)
 		*/
 		public void setRight(IAVLNode node) {
-			if (node != null) {
-				this.right = node;
-			}
+			this.right = node;
 		}
 
 		/**
@@ -1090,33 +1087,6 @@ public class AVLTree {
 		}
 
 		/**
-		* return this.rank
-		 *
-		 * complexity : O(1)
-		*/
-		public int getRank() {
-			return this.rank;
-		}
-
-		/**
-		 * set specific rank value
-		 *
-		 * complexity : O(1)
-		 */
-		public void setTempRank(int rank) {
-			this.rank = rank;
-		}
-
-		/**
-		* set the rank of the node to be the maximum between his children ranks + 1
-		 *
-		 * complexity : O(1)
-		*/
-		public void resetRank() {
-			this.rank = Math.max(this.right.getRank(), this.left.getRank()) + 1;
-		}
-
-		/**
 		* return this.size
 		 *
 		 * complexity : O(1)
@@ -1132,7 +1102,6 @@ public class AVLTree {
 		*/
 		public void setSize() {
 			this.size = this.right.getSize() + this.left.getSize() + 1;
-			this.setHeight(this.rank);
 		}
 
 	}

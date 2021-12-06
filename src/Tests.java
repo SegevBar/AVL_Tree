@@ -127,14 +127,15 @@ public class Tests {
     public boolean checkBalanceOfTree(AVLTree.IAVLNode current) {
         boolean balancedRight = true, balancedLeft = true;
         int leftHeight = 0, rightHeight = 0;
-        if (current.getRight() != null) {
-            balancedRight = checkBalanceOfTree(current.getRight());
-            rightHeight = getDepth(current.getRight());
-        }
         if (current.getLeft() != null) {
             balancedLeft = checkBalanceOfTree(current.getLeft());
             leftHeight = getDepth(current.getLeft());
         }
+        if (current.getRight() != null) {
+            balancedRight = checkBalanceOfTree(current.getRight());
+            rightHeight = getDepth(current.getRight());
+        }
+
 
         return balancedLeft && balancedRight && Math.abs(leftHeight - rightHeight) < 2;
     }
