@@ -63,7 +63,7 @@ public class AVLTree {
 	private IAVLNode treePosition(int k) {
 		IAVLNode p = this.root;
 
-		while (p.getLeft() != this.virtualLeaf && p.getRight() != this.virtualLeaf) {
+		while (p.isRealNode()) {
 			if (p.getKey() == k) {
 				return p;
 			} else if (p.getKey() > k) {  //if node.key < k continue with smaller keys on the lest child
@@ -163,8 +163,6 @@ public class AVLTree {
 			//rebalance the tree
 			rebalanceActions += this.rebalance(parent, rebalanceActions);
 
-			//update the size variable of all the nodes from child to tree root
-			this.updateSize(child);
 		}
 		return rebalanceActions;
 	}
@@ -348,23 +346,31 @@ public class AVLTree {
 	 * complexity : O(log n)
 	 */
 	private int rebalance(IAVLNode x, int countActions) {
+		//if x is a virtual leaf - we got to the tree root
+		if (!x.isRealNode()) {
+			return 0;
+		}
+
 		int rankDeltaRight = x.getRank() - x.getRight().getRank();
 		int rankDeltaLeft = x.getRank() - x.getLeft().getRank();
 
-		//if the rank delta is (1,1), (1,2), (2,1) stop rebalance
+		//if the rank delta is (1,1), (1,2), (2,1) add 0 to countActions
 		if ((rankDeltaRight == 1 && rankDeltaLeft == 1) || (rankDeltaRight == 1 && rankDeltaLeft == 2) || (rankDeltaRight == 2 && rankDeltaLeft == 1)) {
-			return 0;
+			x.setSize();
+			countActions += this.rebalance(x.getParent(), countActions);
 		}
 
 		//if the rank delta is (0,1) or (1,0) - promote x and call recursivly to rebalance on x parent
 		if ((rankDeltaRight == 1 && rankDeltaLeft == 0) || (rankDeltaRight == 0 && rankDeltaLeft == 1)) {
 			countActions += this.promote(x);
+			x.setSize();
 			countActions += this.rebalance(x.getParent(), countActions);
 		}
 		//if the rank delta is (2,2) - demote x and call recursivly to rebalance on x parent
 		else if (rankDeltaRight == 2 && rankDeltaLeft == 2) {
 			countActions += this.demote(x.getParent());
-			this.rebalance(x.getParent(), countActions);
+			x.setSize();
+			countActions += this.rebalance(x.getParent(), countActions);
 		}
 		//if the rank delta is (0,2)
 		else if (rankDeltaRight == 2 && rankDeltaLeft == 0) {
@@ -374,10 +380,17 @@ public class AVLTree {
 			//if the rank delta of left child with his children is (1,2) - rotate right and demote x
 			if (rankDeltaLeftRight == 2 && rankDeltaLeftLeft == 1) {
 				countActions += this.rotateRight(x, y) + this.demote(x);
+				x.setSize();
+				y.setSize();
+				countActions += this.rebalance(y.getParent(), countActions);
 			}
 			//if the rank delta of left child with his children is (2,1) - double rotate right, demote x and y, promote y right child
 			else if (rankDeltaLeftRight == 1 && rankDeltaLeftLeft == 2) {
 				countActions += this.doubleRotateRight(x, y) + this.demote(x) + this.demote(y) + this.promote(y.getRight());
+				x.setSize();
+				y.setSize();
+				y.getParent().setSize();
+				countActions += this.rebalance(y.getParent().getParent(), countActions);
 			}
 		}
 		//if the rank delta is (2,0)
@@ -388,10 +401,17 @@ public class AVLTree {
 			//if the rank delta of right child with his children is (2,1) - rotate left and demote x
 			if (rankDeltaRightRight == 1 && rankDeltaRightLeft == 2) {
 				countActions += this.rotateLeft(x, y) + this.demote(x);
+				x.setSize();
+				y.setSize();
+				countActions += this.rebalance(y.getParent(), countActions);
 			}
 			//if the rank delta of right child with his children is (1,2) - double rotate left, demote x and y, promote y right child
 			else if (rankDeltaRightRight == 2 && rankDeltaRightLeft == 1) {
 				countActions += this.doubleRotateLeft(x, y) + this.demote(x) + this.demote(y) + this.promote(y.getLeft());
+				x.setSize();
+				y.setSize();
+				y.getParent().setSize();
+				countActions += this.rebalance(y.getParent().getParent(), countActions);
 			}
 		}
 		//if the rank delta is (3,1)
@@ -402,15 +422,24 @@ public class AVLTree {
 			//if the rank delta of right child with his children is (1,1) - rotate left and demote x and promote y
 			if (rankDeltaRightRight == 1 && rankDeltaRightLeft == 1) {
 				countActions += this.rotateLeft(x, y) + this.demote(x) + this.promote(y);
+				x.setSize();
+				y.setSize();
+				countActions += this.rebalance(y.getParent(), countActions);
 			}
 			//if the rank delta of right child with his children is (2,1) - rotate left, demote x twice
 			else if (rankDeltaRightRight == 1 && rankDeltaRightLeft == 2) {
 				countActions += this.rotateLeft(x, y) + this.demote(x) + this.demote(x);
-				countActions += this.rebalance(x.getParent(), countActions);
+				x.setSize();
+				y.setSize();
+				countActions += this.rebalance(y.getParent(), countActions);
 			}
 			//if the rank delta of right child with his children is (1,2) - double rotate left, demote x twice, demote y and promote y left child
 			else if (rankDeltaRightRight == 2 && rankDeltaRightLeft == 1) {
 				countActions += this.doubleRotateLeft(x, y) + this.demote(x) + this.demote(x) + this.demote(y) + this.promote(y.getLeft());
+				x.setSize();
+				y.setSize();
+				y.getParent().setSize();
+				countActions += this.rebalance(y.getParent().getParent(), countActions);
 			}
 		}
 		//if the rank delta is (1,3)
@@ -421,15 +450,24 @@ public class AVLTree {
 			//if the rank delta of right child with his children is (1,1) - rotate right and demote x and promote y
 			if (rankDeltaLeftRight == 1 && rankDeltaLeftLeft == 1) {
 				countActions += this.rotateRight(x, y) + this.demote(x) + this.promote(y);
+				x.setSize();
+				y.setSize();
+				countActions += this.rebalance(y.getParent(), countActions);
 			}
 			//if the rank delta of right child with his children is (2,1) - rotate right, demote x twice
 			else if (rankDeltaLeftRight == 1 && rankDeltaLeftLeft == 2) {
 				countActions += this.rotateRight(x, y) + this.demote(x) + this.demote(x);
-				countActions += this.rebalance(x.getParent(), countActions);
+				x.setSize();
+				y.setSize();
+				countActions += this.rebalance(y.getParent(), countActions);
 			}
 			//if the rank delta of right child with his children is (1,2) - double rotate right, demote x twice, demote y and promote y right child
 			else if (rankDeltaLeftRight == 2 && rankDeltaLeftLeft == 1) {
 				countActions += this.doubleRotateRight(x, y) + this.demote(x) + this.demote(x) + this.demote(y) + this.promote(y.getRight());
+				x.setSize();
+				y.setSize();
+				y.getParent().setSize();
+				countActions += this.rebalance(y.getParent().getParent(), countActions);
 			}
 		}
 
@@ -464,6 +502,7 @@ public class AVLTree {
 			this.root = y;
 		}
 		//switch pointers
+		y.setParent(x.getParent());
 		x.setLeft(y.getRight());
 		x.getLeft().setParent(x);
 		y.setRight(x);
@@ -482,6 +521,7 @@ public class AVLTree {
 			this.root = y;
 		}
 		//switch pointers
+		y.setParent(x.getParent());
 		x.setRight(y.getLeft());
 		x.getRight().setParent(x);
 		y.setLeft(x);
@@ -511,7 +551,7 @@ public class AVLTree {
 	 * complexity : O(1)
 	 */
 	private int doubleRotateLeft(IAVLNode x, IAVLNode y) {
-		IAVLNode z = y.getRight();
+		IAVLNode z = y.getLeft();
 		//if the rotation involves the tree root - update it accordingly
 		if (x == this.root) {
 			this.root = z;
@@ -678,6 +718,7 @@ public class AVLTree {
 		//update size from x to the root with setSize()
 		while (p.getParent().isRealNode()) {
 			p.setSize();
+			p.resetHeight();
 			p = p.getParent();
 		}
 	}
@@ -734,7 +775,7 @@ public class AVLTree {
 		return -1;
 	}
 
-	/** 
+	/**
 	 * public interface IAVLNode
 	 * ! Do not delete or modify this - otherwise all tests will fail !
 	 *
@@ -758,7 +799,7 @@ public class AVLTree {
 		public void setTempRank(int delta); //set specific rank value
 		public void setSize(); //sets the size of the node's sub tree
 		public int getSize(); //return the size veriable of the node
-
+		public void resetHeight(); //reset the node height to be equal to rank
 	}
 
 	/**
@@ -895,6 +936,11 @@ public class AVLTree {
 		}
 
 		/**
+		 *
+		 */
+		public void resetHeight() { this.height = this.rank; }
+
+		/**
 		* return this.height
 		 *
 		 * complexity : O(1)
@@ -928,6 +974,7 @@ public class AVLTree {
 		*/
 		public void resetRank() {
 			this.rank = Math.max(this.right.getRank(), this.left.getRank()) + 1;
+			this.setHeight(this.rank);
 		}
 
 		/**
@@ -946,11 +993,10 @@ public class AVLTree {
 		*/
 		public void setSize() {
 			this.size = this.right.getSize() + this.left.getSize() + 1;
+			this.resetRank();
 		}
 
-
-
-   }
+	}
 
 }
   
