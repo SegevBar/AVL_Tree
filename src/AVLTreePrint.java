@@ -6,13 +6,12 @@ import java.util.Queue;
 public class AVLTreePrint extends AVLTree {
     IAVLNode EXTERNAL_NODE = new AVLNode();
 
+    public AVLTreePrint() {};
     public AVLTreePrint(int[] keys) {
         super();
 
-        char info = 'a';
         for (int key : keys) {
-            this.insert(key, String.valueOf(info));
-            info = (char)(info + 1);
+            this.insert(key, String.valueOf("num" + key));
             this.bfs_print();
             System.out.println();
             System.out.println();
@@ -87,7 +86,7 @@ public class AVLTreePrint extends AVLTree {
 //function uses a field called EXTERNAL_NODE for the external node, and uses isRealNode() respectively.
 //tree's root field should be called root.
 
-    private void bfs_print(){
+    public void bfs_print(){
         IAVLNode v = this.getRoot();
         int height = v.getHeight();
         IAVLNode[][] table = new IAVLNode[height+1][(int) Math.pow(2,height)];
@@ -125,6 +124,9 @@ public class AVLTreePrint extends AVLTree {
 
     private IAVLNode[][] aligningPrintTable (IAVLNode[][] table){
         int height = this.getRoot().getHeight();
+        if (height < 0) {
+            return null;
+        }
         IAVLNode[][] alignedtable = new IAVLNode[height+1][2*((int) Math.pow(2,height))-1];
         for (int i=0; i<alignedtable.length; i++)
             for (int j=0; j<alignedtable[0].length; j++)
@@ -162,6 +164,9 @@ public class AVLTreePrint extends AVLTree {
 
     private String[][] makeTreeAlike (IAVLNode[][] alignedtable){
         int height = this.getRoot().getHeight();
+        if (height < 0) {
+            return null;
+        }
         String[][] treetable = new String[(height+1)*3-2][2*((int) Math.pow(2,height))-1];
 
         for (int r=0; r<treetable.length; r++){
@@ -218,13 +223,16 @@ public class AVLTreePrint extends AVLTree {
     }
 
     private void printtreetable (String[][] treetable){
-        for (int i=0; i< treetable.length; i++){
-            for (int j=0; j< treetable[0].length; j++){
-                System.out.print(treetable[i][j]);
-                if (j == treetable[0].length-1)
-                    System.out.print("\n");
+        if (treetable != null) {
+            for (int i=0; i< treetable.length; i++){
+                for (int j=0; j< treetable[0].length; j++){
+                    System.out.print(treetable[i][j]);
+                    if (j == treetable[0].length-1)
+                        System.out.print("\n");
+                }
             }
         }
+
     }
 
 }

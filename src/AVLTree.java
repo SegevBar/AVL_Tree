@@ -164,6 +164,9 @@ public class AVLTree {
 			rebalanceActions += this.rebalance(parent, rebalanceActions);
 
 		}
+
+		System.out.println(rebalanceActions);
+
 		return rebalanceActions;
 	}
 
@@ -183,11 +186,15 @@ public class AVLTree {
 		IAVLNode x = this.treePosition(k);
 
 		//if there is no node with the key k in the tree - return -1
-		if (max.getKey() != k) {
+		if (x.getKey() != k) {
 			return -1;
 		}
 
 		//update min to it's successor if k is the key of the current minimum node
+		if (this.min == this.max) {
+			this.min = this.virtualLeaf;
+			this.max = this.virtualLeaf;
+		}
 		if (this.min.getKey() == k) {
 			IAVLNode successor = this.findSuccessor(this.min);
 			this.min = successor;
@@ -201,22 +208,24 @@ public class AVLTree {
 		IAVLNode y;
 		//check if k node is a leaf
 		if (!x.getRight().isRealNode() && !x.getLeft().isRealNode()) {
+			System.out.println("delete leaf");
 			y = this.deleteLeaf(x);
 		}
 		//check if k node is unary
 		else if ((!x.getRight().isRealNode() && x.getLeft().isRealNode()) || (x.getRight().isRealNode() && !x.getLeft().isRealNode())) {
+			System.out.println("delete unary");
 			y = this.deleteUnar(x);
 		}
 		//otherwise - k has 2 children
 		else {
+			System.out.println("delete double");
 			y = this.deleteDouble(x);
 		}
 
 		//rebalance the tree
 		rebalanceActions += this.rebalance(y, rebalanceActions);
 
-		//update the size variable of all the nodes from x parent (y) to tree root
-		this.updateSize(y);
+		System.out.println(rebalanceActions);
 
 		return rebalanceActions;
 	}
@@ -244,6 +253,7 @@ public class AVLTree {
 				y.setLeft(this.virtualLeaf);
 			}
 		}
+
 		return y;
 	}
 
@@ -319,6 +329,7 @@ public class AVLTree {
 		//update y to x pointers
 		y.setRight(x.getRight());
 		y.setLeft(x.getLeft());
+		y.setParent(x.getParent());
 		x.getRight().setParent(y);
 		x.getLeft().setParent(y);
 
@@ -350,13 +361,16 @@ public class AVLTree {
 		if (!x.isRealNode()) {
 			return 0;
 		}
-
+		System.out.print("rank key ");
+		System.out.print(x.getKey());
+		System.out.println(x.getRank());
 		int rankDeltaRight = x.getRank() - x.getRight().getRank();
 		int rankDeltaLeft = x.getRank() - x.getLeft().getRank();
 
 		//if the rank delta is (1,1), (1,2), (2,1) add 0 to countActions
 		if ((rankDeltaRight == 1 && rankDeltaLeft == 1) || (rankDeltaRight == 1 && rankDeltaLeft == 2) || (rankDeltaRight == 2 && rankDeltaLeft == 1)) {
 			x.setSize();
+
 			countActions += this.rebalance(x.getParent(), countActions);
 		}
 
@@ -569,7 +583,7 @@ public class AVLTree {
 	private IAVLNode findSuccessor(IAVLNode x) {
 		//if x is max - it has no successor
 		if (x == this.max) {
-			return null;
+			return this.virtualLeaf;
 		}
 
 		//successor algorithm
@@ -601,7 +615,7 @@ public class AVLTree {
 	private IAVLNode findPredecessor(IAVLNode x) {
 		//if x is min - it has no predecessor
 		if (x == this.min) {
-			return null;
+			return this.virtualLeaf;
 		}
 
 		//predecessor algorithm
@@ -635,7 +649,9 @@ public class AVLTree {
 	 * complexity : O(1)
 	*/
 	public String min()	{
+
 		return this.min.getValue();
+
 	}
 
 	/**
@@ -671,7 +687,9 @@ public class AVLTree {
 				helpStack.push(curr);
 				curr = curr.getLeft();
 			}
-			curr = helpStack.pop();
+			if (!helpStack.isEmpty()) {
+				curr = helpStack.pop();
+			}
 			orederedKeys[i] = curr.getKey();
 			curr = curr.getRight();
 		}
@@ -705,22 +723,6 @@ public class AVLTree {
 			curr = curr.getRight();
 		}
 		return orederedInfo;
-	}
-
-	/**
-	 * Update size of node x and all the way to the root
-	 *
-	 * complexity : O(log n)
-	 */
-	private void updateSize(IAVLNode x) {
-		IAVLNode p = x;
-
-		//update size from x to the root with setSize()
-		while (p.getParent().isRealNode()) {
-			p.setSize();
-			p.resetHeight();
-			p = p.getParent();
-		}
 	}
 
 	/**
@@ -799,7 +801,6 @@ public class AVLTree {
 		public void setTempRank(int delta); //set specific rank value
 		public void setSize(); //sets the size of the node's sub tree
 		public int getSize(); //return the size veriable of the node
-		public void resetHeight(); //reset the node height to be equal to rank
 	}
 
 	/**
@@ -936,11 +937,6 @@ public class AVLTree {
 		}
 
 		/**
-		 *
-		 */
-		public void resetHeight() { this.height = this.rank; }
-
-		/**
 		* return this.height
 		 *
 		 * complexity : O(1)
@@ -974,7 +970,6 @@ public class AVLTree {
 		*/
 		public void resetRank() {
 			this.rank = Math.max(this.right.getRank(), this.left.getRank()) + 1;
-			this.setHeight(this.rank);
 		}
 
 		/**
@@ -993,7 +988,7 @@ public class AVLTree {
 		*/
 		public void setSize() {
 			this.size = this.right.getSize() + this.left.getSize() + 1;
-			this.resetRank();
+			this.setHeight(this.rank);
 		}
 
 	}
