@@ -317,6 +317,11 @@ public class AVLTree {
 		IAVLNode y = this.findSuccessor(x);
 		IAVLNode z = y.getParent();
 
+		//if the successor parent is the node we want to delete - return successon. else - return the parent of original place successor
+		if (z == x) {
+			z = y;
+		}
+
 		//if x successor is a leaf
 		if (!y.getRight().isRealNode() && !y.getLeft().isRealNode()) {
 			this.deleteLeaf(y);
@@ -361,9 +366,7 @@ public class AVLTree {
 		if (!x.isRealNode()) {
 			return 0;
 		}
-		System.out.print("rank key ");
-		System.out.print(x.getKey());
-		System.out.println(x.getRank());
+
 		int rankDeltaRight = x.getRank() - x.getRight().getRank();
 		int rankDeltaLeft = x.getRank() - x.getLeft().getRank();
 
@@ -382,7 +385,7 @@ public class AVLTree {
 		}
 		//if the rank delta is (2,2) - demote x and call recursivly to rebalance on x parent
 		else if (rankDeltaRight == 2 && rankDeltaLeft == 2) {
-			countActions += this.demote(x.getParent());
+			countActions += this.demote(x);
 			x.setSize();
 			countActions += this.rebalance(x.getParent(), countActions);
 		}
@@ -449,7 +452,7 @@ public class AVLTree {
 			}
 			//if the rank delta of right child with his children is (1,2) - double rotate left, demote x twice, demote y and promote y left child
 			else if (rankDeltaRightRight == 2 && rankDeltaRightLeft == 1) {
-				countActions += this.doubleRotateLeft(x, y) + this.demote(x) + this.demote(x) + this.demote(y) + this.promote(y.getLeft());
+				countActions += this.doubleRotateLeft(x, y) + this.demote(x) + this.demote(x) + this.demote(y) + this.promote(y.getParent());
 				x.setSize();
 				y.setSize();
 				y.getParent().setSize();
@@ -477,7 +480,7 @@ public class AVLTree {
 			}
 			//if the rank delta of right child with his children is (1,2) - double rotate right, demote x twice, demote y and promote y right child
 			else if (rankDeltaLeftRight == 2 && rankDeltaLeftLeft == 1) {
-				countActions += this.doubleRotateRight(x, y) + this.demote(x) + this.demote(x) + this.demote(y) + this.promote(y.getRight());
+				countActions += this.doubleRotateRight(x, y) + this.demote(x) + this.demote(x) + this.demote(y) + this.promote(y.getParent());
 				x.setSize();
 				y.setSize();
 				y.getParent().setSize();
@@ -503,6 +506,7 @@ public class AVLTree {
 	 */
 	private int demote(IAVLNode x) {
 		x.setTempRank(x.getRank() - 1);
+		System.out.println(x.getRank());
 		return 1;
 	}
 
@@ -573,6 +577,7 @@ public class AVLTree {
 		//switch pointers
 		this.rotateRight(y,z);
 		this.rotateLeft(x,z);
+
 		return 2;
 	}
 
@@ -682,10 +687,13 @@ public class AVLTree {
 
 		//inOrder using a stack
 		IAVLNode curr = this.root;
+		helpStack.push(curr);
+
 		for (int i = 0; i < orederedKeys.length; i++) {
 			while (curr.getLeft().isRealNode()) {
-				helpStack.push(curr);
+				System.out.println(curr.getLeft().getKey());
 				curr = curr.getLeft();
+				helpStack.push(curr);
 			}
 			if (!helpStack.isEmpty()) {
 				curr = helpStack.pop();
