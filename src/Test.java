@@ -3,14 +3,7 @@ import java.util.Arrays;
 
 public class Test {
     public static void main(String[] args) {
-        //Tests t = new Tests();
-        //t.testRemove();
-//        AVLTree n = new AVLTree();
-//        AVLTree.IAVLNode p = n.getRoot();
-//        System.out.println(p.getKey());
-//        System.out.println(p.getRight().getKey());
-//        System.out.println(p.getLeft().getKey());
-        test6();
+
 
     }
 
@@ -300,15 +293,6 @@ public class Test {
         int[] keys5 = {16, 24, 36, 19, 44, 28, 61, 74, 83, 64, 52, 65, 86, 93, 88};
         AVLTreePrint t5 = new AVLTreePrint(keys5);
 
-        AVLTree.IAVLNode p = t5.getRoot();
-        while (p.isRealNode()) {
-            p = p.getRight();
-        }
-        System.out.println(p.getKey());
-        System.out.println(p.isRealNode());
-        System.out.println(p.getRight());
-        System.out.println(p.getLeft());
-
         System.out.println("Test empty");
         System.out.println(t5.empty());
 
@@ -325,10 +309,26 @@ public class Test {
 //        t5.bfs_print();
 
         System.out.println("Test delete");
-//        t5.delete(15); //not in the tree
-//        t5.bfs_print();
-//        t5.delete(13);
-//        t5.bfs_print();
+        t5.delete(88);
+        t5.bfs_print();
+        t5.delete(19);
+        t5.bfs_print();
+        t5.delete(16);
+        t5.bfs_print();
+        t5.delete(28);
+        t5.bfs_print();
+        t5.delete(24);
+        t5.bfs_print();
+        t5.delete(36);
+        t5.bfs_print();
+        t5.delete(52);
+        t5.bfs_print();
+        t5.delete(93);
+        t5.bfs_print();
+        t5.delete(86);
+        t5.bfs_print();
+        t5.delete(83);
+        t5.bfs_print();
 
         System.out.println("Test min");
         System.out.println(t5.min());

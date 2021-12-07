@@ -178,123 +178,157 @@ public class Tests {
             tree.insert(val, "" + val);
         }
         if (!tree.min().equals("16")) {
+            System.out.println("min 16");
             return false;
         }
         if (!tree.max().equals("93")) {
+            System.out.println("max 93");
             return false;
         }
         if (!checkBalanceOfTree(tree.getRoot())) {
+            System.out.println("balanced root");
             return false;
         }
         if (!checkOrderingOfTree(tree.getRoot())) {
+            System.out.println("balanced root");
             return false;
         }
         tree.delete(88);
         if (!checkBalanceOfTree(tree.getRoot())) {
+            System.out.println("delete 88");
             return false;
         }
         if (!checkOrderingOfTree(tree.getRoot())) {
+            System.out.println("balanced root 88");
             return false;
         }
         if (tree.search(88) != null) {
+            System.out.println("search 88");
             return false;
         }
 
         tree.delete(19);
         if (!checkBalanceOfTree(tree.getRoot())) {
+            System.out.println("delete 19");
             return false;
         }
         if (!checkOrderingOfTree(tree.getRoot())) {
+            System.out.println("balanced root 19");
             return false;
         }
         if (tree.search(19) != null) {
+            System.out.println("search 19");
             return false;
         }
 
         tree.delete(16);
         if (!checkBalanceOfTree(tree.getRoot())) {
+            System.out.println("delete 16");
             return false;
         }
         if (!checkOrderingOfTree(tree.getRoot())) {
+            System.out.println("balanced root 16");
             return false;
         }
         if (tree.search(16) != null) {
+            System.out.println("search 16");
             return false;
         }
 
         tree.delete(28);
         if (!checkBalanceOfTree(tree.getRoot())) {
+            System.out.println("delete 28");
             return false;
         }
         if (!checkOrderingOfTree(tree.getRoot())) {
+            System.out.println("balanced root 28");
             return false;
         }
-        if (tree.search(16) != null) {
+        if (tree.search(28) != null) {
+            System.out.println("search 28");
             return false;
         }
         tree.delete(24);
         if (!checkBalanceOfTree(tree.getRoot())) {
+            System.out.println("delete 24");
             return false;
         }
         if (!checkOrderingOfTree(tree.getRoot())) {
+            System.out.println("balanced root 24");
             return false;
         }
         if (tree.search(24) != null) {
+            System.out.println("search 24");
             return false;
         }
 
         tree.delete(36);
         if (!checkBalanceOfTree(tree.getRoot())) {
+            System.out.println("delete 36");
             return false;
         }
         if (!checkOrderingOfTree(tree.getRoot())) {
+            System.out.println("balanced root 36");
             return false;
         }
         if (tree.search(36) != null) {
+            System.out.println("search 36");
             return false;
         }
 
         tree.delete(52);
         if (!checkBalanceOfTree(tree.getRoot())) {
+            System.out.println("delete 52");
             return false;
         }
         if (!checkOrderingOfTree(tree.getRoot())) {
+            System.out.println("balanced root 52");
             return false;
         }
         if (tree.search(52) != null) {
+            System.out.println("search 52");
             return false;
         }
 
         tree.delete(93);
         if (!checkBalanceOfTree(tree.getRoot())) {
+            System.out.println("delete 93");
             return false;
         }
         if (!checkOrderingOfTree(tree.getRoot())) {
+            System.out.println("balanced root 93");
             return false;
         }
         if (tree.search(93) != null) {
+            System.out.println("search 93");
             return false;
         }
 
         tree.delete(86);
         if (!checkBalanceOfTree(tree.getRoot())) {
+            System.out.println("delete 86");
             return false;
         }
         if (!checkOrderingOfTree(tree.getRoot())) {
+            System.out.println("balanced root 86");
             return false;
         }
         if (tree.search(86) != null) {
+            System.out.println("search 86");
             return false;
         }
 
         tree.delete(83);
         if (!checkBalanceOfTree(tree.getRoot())) {
+            System.out.println("delete 83");
             return false;
         }
         if (!checkOrderingOfTree(tree.getRoot())) {
+            System.out.println("balanced root 83");
             return false;
         }
         if (tree.search(83) != null) {
+            System.out.println("search 83");
             return false;
         }
         return true;

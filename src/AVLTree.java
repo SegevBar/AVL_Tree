@@ -253,7 +253,6 @@ public class AVLTree {
 	 * complexity : O(1)
 	 */
 	private IAVLNode deleteUnar(IAVLNode x) {
-		boolean rightChild = false;
 		IAVLNode y = x.getParent();
 
 		//if x is unary and the tree root - update root.tree to point on x child
@@ -265,36 +264,38 @@ public class AVLTree {
 			if (x.getRight().isRealNode()) {
 				this.root = x.getRight();
 				x.getRight().setParent(this.virtualLeaf);
-				rightChild = true;
 			}
 		}
 
-		else if (y.getLeft() == x) {
-			//x is a left child and has only a right child
-			if (rightChild) {
-				IAVLNode z = x.getRight();
-				y.setLeft(z);
-				z.setParent(y);
+
+		else {
+			if (y.getLeft() == x) {
+				//x is a left child and has only a right child
+				if (x.getRight().isRealNode()) {
+					IAVLNode z = x.getRight();
+					y.setLeft(z);
+					z.setParent(y);
+				}
+				//x is a left child and has only a left child
+				else if (x.getLeft().isRealNode()) {
+					IAVLNode z = x.getLeft();
+					y.setLeft(z);
+					z.setParent(y);
+				}
 			}
-			//x is a left child and has only a left child
-			else {
-				IAVLNode z = x.getLeft();
-				y.setLeft(z);
-				z.setParent(y);
-			}
-		}
-		else if (y.getRight() == x) {
-			//x is a right child and has only a right child
-			if (rightChild) {
-				IAVLNode z = x.getRight();
-				y.setRight(z);
-				z.setParent(y);
-			}
-			//x is a right child and has only a left child
-			else {
-				IAVLNode z = x.getLeft();
-				y.setRight(z);
-				z.setParent(y);
+			else if (y.getRight() == x) {
+				//x is a right child and has only a right child
+				if (x.getRight().isRealNode()) {
+					IAVLNode z = x.getRight();
+					y.setRight(z);
+					z.setParent(y);
+				}
+				//x is a right child and has only a left child
+				else if (x.getLeft().isRealNode()) {
+					IAVLNode z = x.getLeft();
+					y.setRight(z);
+					z.setParent(y);
+				}
 			}
 		}
 		return y;
@@ -455,22 +456,22 @@ public class AVLTree {
 			IAVLNode y = x.getLeft();
 			int rankDeltaLeftRight = y.getHeight() - y.getRight().getHeight();
 			int rankDeltaLeftLeft = y.getHeight() - y.getLeft().getHeight();
-			//if the rank delta of right child with his children is (1,1) - rotate right and demote x and promote y
+			//if the rank delta of left child with his children is (1,1) - rotate right and demote x and promote y
 			if (rankDeltaLeftRight == 1 && rankDeltaLeftLeft == 1) {
 				countActions += this.rotateRight(x, y) + this.demote(x) + this.promote(y);
 				x.setSize();
 				y.setSize();
 				countActions += this.rebalance(y.getParent(), countActions);
 			}
-			//if the rank delta of right child with his children is (2,1) - rotate right, demote x twice
-			else if (rankDeltaLeftRight == 1 && rankDeltaLeftLeft == 2) {
+			//if the rank delta of left child with his children is (1,2) - rotate right, demote x twice
+			else if (rankDeltaLeftRight == 2 && rankDeltaLeftLeft == 1) {
 				countActions += this.rotateRight(x, y) + this.demote(x) + this.demote(x);
 				x.setSize();
 				y.setSize();
 				countActions += this.rebalance(y.getParent(), countActions);
 			}
-			//if the rank delta of right child with his children is (1,2) - double rotate right, demote x twice, demote y and promote y right child
-			else if (rankDeltaLeftRight == 2 && rankDeltaLeftLeft == 1) {
+			//if the rank delta of left child with his children is (2,1) - double rotate right, demote x twice, demote y and promote y right child
+			else if (rankDeltaLeftRight == 1 && rankDeltaLeftLeft == 2) {
 				countActions += this.doubleRotateRight(x, y) + this.demote(x) + this.demote(x) + this.demote(y) + this.promote(y.getParent());
 				x.setSize();
 				y.setSize();
@@ -1103,7 +1104,6 @@ public class AVLTree {
 		public void setSize() {
 			this.size = this.right.getSize() + this.left.getSize() + 1;
 		}
-
 	}
 
 }
