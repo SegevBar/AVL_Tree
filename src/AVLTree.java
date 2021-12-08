@@ -32,6 +32,8 @@ public class AVLTree {
 	}
 
 	/**
+	 * private IAVLNode treePosition(int k)
+	 *
 	 * binary search for node with key == k
 	 * return node when node.key == k, else the parent of the node
 	 *
@@ -208,6 +210,8 @@ public class AVLTree {
 
 
 	/**
+	 * private IAVLNode deleteLeaf(IAVLNode child)
+	 *
 	 * child is a leaf
 	 * deleting child
 	 * return child's parent
@@ -236,6 +240,8 @@ public class AVLTree {
 	}
 
 	/**
+	 * private IAVLNode deleteUnar(IAVLNode child)
+	 *
 	 * child is an unary node
 	 * deleting child
 	 * return child's parent
@@ -292,6 +298,8 @@ public class AVLTree {
 	}
 
 	/**
+	 * private IAVLNode deleteDouble(IAVLNode child)
+	 *
 	 * child has left and right node
 	 * swipe child with its' successor
 	 * delete child
@@ -343,6 +351,8 @@ public class AVLTree {
 	}
 
 	/**
+	 * private int rebalance(IAVLNode node, int countActions)
+	 *
 	 * recursive function that locally rebalancing the tree based on algorithm
 	 * keeps count of rebalance actions in countActions
 	 * update size variable of relevant nodes
@@ -495,6 +505,8 @@ public class AVLTree {
 	}
 
 	/**
+	 * private int promote(IAVLNode node)
+	 *
 	 * promotes node height + 1
 	 *
 	 * complexity : O(1)
@@ -505,6 +517,8 @@ public class AVLTree {
 	}
 
 	/**
+	 * private int demote(IAVLNode node)
+	 *
 	 * demotes node height - 1
 	 *
 	 * complexity : O(1)
@@ -515,6 +529,8 @@ public class AVLTree {
 	}
 
 	/**
+	 * private int rotateRight(IAVLNode node, IAVLNode left)
+	 *
 	 * locally rotate the tree to the right
 	 *
 	 * complexity : O(1)
@@ -544,6 +560,8 @@ public class AVLTree {
 	}
 
 	/**
+	 * private int rotateLeft(IAVLNode node, IAVLNode right)
+	 *
 	 * locally rotate the tree to the left
 	 *
 	 * complexity : O(1)
@@ -573,6 +591,8 @@ public class AVLTree {
 	}
 
 	/**
+	 * private int doubleRotateRight(IAVLNode node, IAVLNode left)
+	 *
 	 * locally double rotate the tree to the right
 	 *
 	 * complexity : O(1)
@@ -590,6 +610,8 @@ public class AVLTree {
 	}
 
 	/**
+	 * private int doubleRotateLeft(IAVLNode node, IAVLNode right)
+	 *
 	 * locally double rotate the tree to the left
 	 *
 	 * complexity : O(1)
@@ -608,6 +630,8 @@ public class AVLTree {
 	}
 
 	/**
+	 * private IAVLNode findSuccessor(IAVLNode node)
+	 *
 	 * find node's successor using the algorithm thought in class
 	 *
 	 * complexity : O(log n)
@@ -641,6 +665,8 @@ public class AVLTree {
 	}
 
 	/**
+	 * private IAVLNode findPredecessor(IAVLNode node)
+	 *
 	 * find node's predecessor using the algorithm thought in class
 	 *
 	 * complexity : O(log n)
@@ -744,6 +770,8 @@ public class AVLTree {
 
 	/**
 	 *
+	 *
+	 * complexity : O(n)
 	 */
 
 	private int nodeToArray(IAVLNode curr, IAVLNode[] orderedNodes, int i) {
@@ -1056,9 +1084,7 @@ public class AVLTree {
 		 * complexity : O(1)
 		*/
 		public void setParent(IAVLNode node) {
-			if (node != null) {
-				this.parent = node;
-			}
+			this.parent = node;
 		}
 
 		/**
@@ -1076,7 +1102,7 @@ public class AVLTree {
 		 * complexity : O(1)
 		*/
 		public boolean isRealNode() {
-			if (this.key != -1) {
+			if (this.key != -1 ) {
 				return true;
 			}
 			return false;
