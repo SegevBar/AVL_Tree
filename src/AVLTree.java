@@ -1,5 +1,3 @@
-import java.util.Arrays;
-import java.util.Stack;
 
 /**
  *
@@ -724,6 +722,28 @@ public class AVLTree {
 	}
 
 	/**
+	 * public IAVLNode getMin()
+	 *
+	 * return the min node
+	 *
+	 * complexity : O(1)
+	 */
+	public IAVLNode getMin() {
+		return this.min;
+	}
+
+	/**
+	 * public IAVLNode getMax()
+	 *
+	 * return the max node
+	 *
+	 * complexity : O(1)
+	 */
+	public IAVLNode getMax() {
+		return this.max;
+	}
+
+	/**
 	* public int[] keysToArray()
 	*
 	* Returns a sorted array which contains all keys in the tree,
@@ -769,11 +789,12 @@ public class AVLTree {
 	}
 
 	/**
+	 * private int nodeToArray(IAVLNode curr, IAVLNode[] orderedNodes, int i)
 	 *
+	 * recursivly inOrder traversal the tree and creates an ordered array of tree nodes
 	 *
 	 * complexity : O(n)
 	 */
-
 	private int nodeToArray(IAVLNode curr, IAVLNode[] orderedNodes, int i) {
 		if (i == orderedNodes.length) {
 			return i-1;
@@ -811,6 +832,18 @@ public class AVLTree {
 	}
 
 	/**
+	 * setRoot(IAVLNode newRoot)
+	 *
+	 * set the tree root to be newRoot
+	 *
+	 * complexity : O(1)
+	 */
+	private void setRoot(IAVLNode newRoot) {
+		this.root = newRoot;
+	}
+
+
+	/**
 	* public AVLTree[] split(int x)
 	*
 	* splits the tree into 2 trees according to the key x.
@@ -830,10 +863,10 @@ public class AVLTree {
 
 		//if x has children we set them first:
 		if (xNode.getLeft().isRealNode()) {
-			result[0].root = xNode.getLeft();
+			result[0].setRoot(xNode.getLeft());
 		}
 		if (xNode.getRight().isRealNode()) {
-			result[1].root = xNode.getRight();
+			result[1].setRoot(xNode.getRight());
 		}
 
 		IAVLNode yNode = xNode.getParent();
@@ -845,22 +878,23 @@ public class AVLTree {
 		xNode.setRight(this.virtualLeaf);
 		xNode.setParent(this.virtualLeaf);
 
-		while (yNode != this.virtualLeaf) {
+		while (yNode.isRealNode()) {
+			System.out.println(yNode.getKey());
 			IAVLNode copyNode = new AVLNode(yNode.getKey(), yNode.getValue());
 
 			if (yNode.getKey() < x) {
 				AVLTree lessThan = new AVLTree();
 				if (yNode.getLeft().isRealNode()) {
-					lessThan.root = yNode.getLeft();
-					lessThan.root.setParent(lessThan.virtualLeaf);
+					lessThan.setRoot(yNode.getLeft());
+					lessThan.getRoot().setParent(lessThan.virtualLeaf);
 				}
 				result[0].join(copyNode, lessThan);
 			}
 			else {
 				AVLTree moreThan = new AVLTree();
 				if (yNode.getRight().isRealNode()) {
-					moreThan.root = yNode.getRight();
-					moreThan.root.setParent(moreThan.virtualLeaf);
+					moreThan.setRoot(yNode.getRight());
+					moreThan.getRoot().setParent(moreThan.virtualLeaf);
 				}
 				result[1].join(copyNode, moreThan);
 			}
@@ -882,7 +916,7 @@ public class AVLTree {
 	 * complexity :
 	*/
 	public int join(IAVLNode x, AVLTree t) {
-		int resultReturn = Math.abs(this.root.getHeight() - t.root.getHeight()) + 1;
+		int resultReturn = Math.abs(this.root.getHeight() - t.getRoot().getHeight()) + 1;
 
 		if (t.empty() && this.empty()) {
 			this.max = x;
@@ -896,9 +930,9 @@ public class AVLTree {
 				return resultReturn;
 			}
 			if (this.empty()) {
-				this.root = t.root;
-				this.max = t.max;
-				this.min = t.min;
+				this.root = t.getRoot();
+				this.max = t.getMax();
+				this.min = t.getMin();
 				this.insert(x.getKey(), x.getValue());
 				return resultReturn;
 			}
@@ -921,37 +955,43 @@ public class AVLTree {
 		int heightDelta = rightTree.getRoot().getHeight() - leftTree.getRoot().getHeight();
 		if (heightDelta <= 1 && heightDelta >= -1) {
 			x.setRight(rightTree.getRoot());
+			x.getRight().setParent(x);
 			x.setLeft(leftTree.getRoot());
+			x.getLeft().setParent(x);
 			this.root = x;
+			this.max = rightTree.getMax();
+			this.min = leftTree.getMin();
+			x.setParent(this.virtualLeaf);
 			x.setSize();
-			this.max = rightTree.max;
-			this.min = leftTree.min;
+			x.setHeight(Math.max(x.getRight().getHeight(), x.getLeft().getHeight()) + 1);
 			return 1;
 		}
 		else {
 			if (heightDelta > 0) {
-				IAVLNode tempNode = rightTree.root;
-				while (tempNode.getHeight() > leftTree.root.getHeight()) {
+				IAVLNode tempNode = rightTree.getRoot();
+				while (tempNode.getHeight() > leftTree.getRoot().getHeight()) {
 					tempNode = tempNode.getLeft();
 				}
 				x.setParent(tempNode.getParent());
-				x.setLeft(leftTree.root);
+				x.setLeft(leftTree.getRoot());
 				x.getLeft().setParent(x);
 				x.setRight(tempNode);
 				x.getRight().setParent(x);
 				if (x.getParent() != this.virtualLeaf) {
 					x.getParent().setLeft(x);
 				}
-				this.root = rightTree.root;
+				this.root = rightTree.getRoot();
+				x.setHeight(Math.max(x.getRight().getHeight(), x.getLeft().getHeight()) + 1);
 				this.rebalance(x, 0);
+
 			}
 			if (heightDelta < 0) {
-				IAVLNode tempNode = leftTree.root;
-				while (tempNode.getHeight() > rightTree.root.getHeight()) {
+				IAVLNode tempNode = leftTree.getRoot();
+				while (tempNode.getHeight() > rightTree.getRoot().getHeight()) {
 					tempNode = tempNode.getRight();
 				}
 				x.setParent(tempNode.getParent());
-				x.setRight(rightTree.root);
+				x.setRight(rightTree.getRoot());
 				x.setLeft(tempNode);
 				x.getRight().setParent(x);
 				x.getLeft().setParent(x);
@@ -959,12 +999,14 @@ public class AVLTree {
 					x.getParent().setRight(x);
 				}
 				this.root = leftTree.getRoot();
+				x.setHeight(Math.max(x.getRight().getHeight(), x.getLeft().getHeight()) + 1);
 				this.rebalance(x, 0);
+
 			}
 		}
 
 		this.max = rightTree.max;
-		this.min = rightTree.min;
+		this.min = leftTree.min;
 		return resultReturn;
 	}
 
