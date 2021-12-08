@@ -3,7 +3,7 @@ import java.util.Arrays;
 
 public class Test {
     public static void main(String[] args) {
-
+        test7();
 
     }
 
@@ -359,6 +359,64 @@ public class Test {
 
     public static void test7() {
         System.out.println("T7 - delete max");
+
+        int[] keys5 = {1,2};
+        AVLTreePrint t1 = new AVLTreePrint(keys5);
+
+        System.out.println(t1.min());
+        System.out.println(t1.max());
+        t1.delete(2);
+        t1.bfs_print();
+        System.out.println(t1.min());
+        System.out.println(t1.max());
+        t1.delete(1);
+        t1.bfs_print();
+        System.out.println(t1.min());
+        System.out.println(t1.max());
+
+
+        System.out.println("Test empty");
+        System.out.println(t1.empty());
+
+        System.out.println("Test search");
+        System.out.println(t1.search(2));
+        System.out.println(t1.search(10));
+
+        System.out.println("Test insert");
+//        t1.insert(1, "a");
+//        t1.bfs_print();
+
+        System.out.println("Test delete");
+//        t1.delete(1);
+//        t1.bfs_print();
+
+        System.out.println("Test min");
+        System.out.println(t1.min());
+
+        System.out.println("Test max");
+        System.out.println(t1.max());
+        t1.bfs_print();
+
+        System.out.println("Test keysToArray");
+        System.out.println(Arrays.toString(t1.keysToArray()));
+
+        System.out.println("Test infoToArray");
+        System.out.println(Arrays.toString(t1.infoToArray()));
+
+        System.out.println("Test size");
+        System.out.println(t1.size());
+
+        System.out.println("Test split");
+        System.out.println("TO COMPLETE");
+
+        System.out.println("Test join");
+        System.out.println("TO COMPLETE");
+
+        System.out.println("Test getRoot");
+        System.out.println(t1.getRoot());
+
+        System.out.println();
+
     }
 
 //        System.out.println("Test empty");

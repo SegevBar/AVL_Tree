@@ -1,3 +1,4 @@
+import java.util.Arrays;
 import java.util.Stack;
 
 /**
@@ -12,32 +13,9 @@ import java.util.Stack;
 public class AVLTree {
 
 	private IAVLNode virtualLeaf = new AVLNode();
-	private IAVLNode root;
-	private IAVLNode min;
-	private IAVLNode max;
-
-	/**
-	 * empty constructor
-	 */
-	public AVLTree() {
-		this.root = virtualLeaf;
-		this.min = virtualLeaf;
-		this.max = virtualLeaf;
-	}
-
-	/**
-	 * non empty constructor
-	 * gets a list of AVLNodes and insert them to the tree
-	 * for debugging
-	 */
-	public AVLTree(int[] keys) {
-		this();
-		char info = 'a';
-		for (int key : keys) {
-			this.insert(key, String.valueOf(info));
-			info = (char)(info + 1);
-		}
-	}
+	private IAVLNode root = virtualLeaf;
+	private IAVLNode min = virtualLeaf;
+	private IAVLNode max = virtualLeaf;
 
 	/**
 	* public boolean empty()
@@ -65,16 +43,24 @@ public class AVLTree {
 		while (p.isRealNode()) {
 			if (p.getKey() == k) {
 				return p;
-			} else if (p.getKey() > k) {  //if node.key < k continue with smaller keys on the lest child
+			}
+			//if node.key < k continue with smaller keys on the lest child
+			else if (p.getKey() > k) {
 				if (p.getLeft().isRealNode()) {
 					p = p.getLeft();
-				} else {   //if there is no child - return the parent
+				}
+				//if there is no child - return the parent
+				else {
 					return p;
 				}
-			} else {   //if node.key > k continue with bigger keys on the right child
+			}
+			//if node.key > k continue with bigger keys on the right child
+			else {
 				if (p.getRight().isRealNode()) {
 					p = p.getRight();
-				} else {    //if there is no child - return the parent
+				}
+				//if there is no child - return the parent
+				else {
 					return p;
 				}
 			}
@@ -91,7 +77,9 @@ public class AVLTree {
 	 * complexity : O(log n)
 	*/
 	public String search(int k) {
+		//find k position in tree
 		IAVLNode node = this.treePosition(k);
+
 		if (node.getKey() == k) {
 			return node.getValue();
 		}
@@ -159,10 +147,7 @@ public class AVLTree {
 
 			//rebalance the tree
 			rebalanceActions += this.rebalance(parent, rebalanceActions);
-
 		}
-		this.virtualLeaf.setLeft(null);
-		this.virtualLeaf.setRight(null);
 		return rebalanceActions;
 	}
 
@@ -179,10 +164,10 @@ public class AVLTree {
 	*/
 	public int delete(int k) {
 		int rebalanceActions = 0;
-		IAVLNode x = this.treePosition(k);
+		IAVLNode toDelete = this.treePosition(k);
 
 		//if there is no node with the key k in the tree - return -1
-		if (x.getKey() != k) {
+		if (toDelete.getKey() != k) {
 			return -1;
 		}
 
@@ -201,282 +186,293 @@ public class AVLTree {
 			this.max = predecessor;
 		}
 
-		IAVLNode y;
+		IAVLNode startRebalance;
 		//check if k node is a leaf
-		if (!x.getRight().isRealNode() && !x.getLeft().isRealNode()) {
-			y = this.deleteLeaf(x);
+		if (!toDelete.getRight().isRealNode() && !toDelete.getLeft().isRealNode()) {
+			startRebalance = this.deleteLeaf(toDelete);
 		}
 		//check if k node is unary
-		else if ((!x.getRight().isRealNode() && x.getLeft().isRealNode()) || (x.getRight().isRealNode() && !x.getLeft().isRealNode())) {
-			y = this.deleteUnar(x);
+		else if ((!toDelete.getRight().isRealNode() && toDelete.getLeft().isRealNode()) || (toDelete.getRight().isRealNode() && !toDelete.getLeft().isRealNode())) {
+			startRebalance = this.deleteUnar(toDelete);
 		}
 		//otherwise - k has 2 children
 		else {
-			y = this.deleteDouble(x);
+			startRebalance = this.deleteDouble(toDelete);
 		}
 
 		//rebalance the tree
-		rebalanceActions += this.rebalance(y, rebalanceActions);
+		rebalanceActions += this.rebalance(startRebalance, rebalanceActions);
 
 		return rebalanceActions;
 	}
 
 
 	/**
+	 * child is a leaf
+	 * deleting child
+	 * return child's parent
 	 *
 	 * complexity : O(1)
 	 */
-	private IAVLNode deleteLeaf(IAVLNode x) {
-		IAVLNode y = x.getParent();
+	private IAVLNode deleteLeaf(IAVLNode child) {
+		IAVLNode parent = child.getParent();
 
 		//if x is a leaf and the tree root - the tree becomes empty
-		if (!y.isRealNode()) {
+		if (child == this.root) {
 			this.root = this.virtualLeaf;
 		}
 
 		else {
 			//if x is a right child
-			if (y.getRight() == x) {
-				y.setRight(this.virtualLeaf);
+			if (parent.getRight() == child) {
+				parent.setRight(this.virtualLeaf);
 			}
 			//if x is a left child
-			else if (y.getLeft() == x) {
-				y.setLeft(this.virtualLeaf);
+			else if (parent.getLeft() == child) {
+				parent.setLeft(this.virtualLeaf);
 			}
 		}
-
-		return y;
+		return parent;
 	}
 
 	/**
+	 * child is an unary node
+	 * deleting child
+	 * return child's parent
 	 *
 	 * complexity : O(1)
 	 */
-	private IAVLNode deleteUnar(IAVLNode x) {
-		IAVLNode y = x.getParent();
+	private IAVLNode deleteUnar(IAVLNode child) {
+		IAVLNode parent = child.getParent();
 
 		//if x is unary and the tree root - update root.tree to point on x child
-		if (!y.isRealNode()) {
-			if (x.getLeft().isRealNode()) {
-				this.root = x.getLeft();
-				x.getLeft().setParent(this.virtualLeaf);
+		if (child == this.root) {
+			if (child.getLeft().isRealNode()) {
+				this.root = child.getLeft();
+				child.getLeft().setParent(this.virtualLeaf);
 			}
-			if (x.getRight().isRealNode()) {
-				this.root = x.getRight();
-				x.getRight().setParent(this.virtualLeaf);
+			if (child.getRight().isRealNode()) {
+				this.root = child.getRight();
+				child.getRight().setParent(this.virtualLeaf);
 			}
 		}
 
 
 		else {
-			if (y.getLeft() == x) {
+			if (parent.getLeft() == child) {
 				//x is a left child and has only a right child
-				if (x.getRight().isRealNode()) {
-					IAVLNode z = x.getRight();
-					y.setLeft(z);
-					z.setParent(y);
+				if (child.getRight().isRealNode()) {
+					IAVLNode right = child.getRight();
+					parent.setLeft(right);
+					right.setParent(parent);
 				}
 				//x is a left child and has only a left child
-				else if (x.getLeft().isRealNode()) {
-					IAVLNode z = x.getLeft();
-					y.setLeft(z);
-					z.setParent(y);
+				else if (child.getLeft().isRealNode()) {
+					IAVLNode left = child.getLeft();
+					parent.setLeft(left);
+					left.setParent(parent);
 				}
 			}
-			else if (y.getRight() == x) {
+			else if (parent.getRight() == child) {
 				//x is a right child and has only a right child
-				if (x.getRight().isRealNode()) {
-					IAVLNode z = x.getRight();
-					y.setRight(z);
-					z.setParent(y);
+				if (child.getRight().isRealNode()) {
+					IAVLNode right = child.getRight();
+					parent.setRight(right);
+					right.setParent(parent);
 				}
 				//x is a right child and has only a left child
-				else if (x.getLeft().isRealNode()) {
-					IAVLNode z = x.getLeft();
-					y.setRight(z);
-					z.setParent(y);
+				else if (child.getLeft().isRealNode()) {
+					IAVLNode left = child.getLeft();
+					parent.setRight(left);
+					left.setParent(parent);
 				}
 			}
 		}
-		return y;
+		return parent;
 	}
 
 	/**
+	 * child has left and right node
+	 * swipe child with its' successor
+	 * delete child
+	 * return original parent of successor or the successor if its' parent is child
 	 *
 	 * complexity : O(1)
 	 */
-	private IAVLNode deleteDouble(IAVLNode x) {
-		IAVLNode y = this.findSuccessor(x);
-		IAVLNode z = y.getParent();
+	private IAVLNode deleteDouble(IAVLNode child) {
+		IAVLNode successor = this.findSuccessor(child);
+		IAVLNode successorParent = successor.getParent();
 
 		//if the successor parent is the node we want to delete - return successon. else - return the parent of original place successor
-		if (z == x) {
-			z = y;
+		if (successorParent == child) {
+			successorParent = successor;
 		}
 
-		//if x successor is a leaf
-		if (!y.getRight().isRealNode() && !y.getLeft().isRealNode()) {
-			this.deleteLeaf(y);
+		//if child successor is a leaf
+		if (!successor.getRight().isRealNode() && !successor.getLeft().isRealNode()) {
+			this.deleteLeaf(successor);
 		}
-		//if x successor is unary
-		else if (!y.getRight().isRealNode() && y.getLeft().isRealNode() || y.getRight().isRealNode() && !y.getLeft().isRealNode()) {
-			this.deleteUnar(y);
+		//if child successor is unary
+		else if (!successor.getRight().isRealNode() && successor.getLeft().isRealNode() || successor.getRight().isRealNode() && !successor.getLeft().isRealNode()) {
+			this.deleteUnar(successor);
 		}
 
-		//update y to x pointers
-		y.setRight(x.getRight());
-		y.setLeft(x.getLeft());
-		y.setParent(x.getParent());
-		x.getRight().setParent(y);
-		x.getLeft().setParent(y);
-		y.setHeight(x.getHeight());
+		//update successor to child pointers
+		successor.setRight(child.getRight());
+		successor.setLeft(child.getLeft());
+		successor.setParent(child.getParent());
+		child.getRight().setParent(successor);
+		child.getLeft().setParent(successor);
+		successor.setHeight(child.getHeight());
 
-		//if x was the tree root - update the root to point to y
-		if (this.root == x) {
-			this.root = y;
+		//if child was the tree root - update the root to point to successor
+		if (this.root == child) {
+			this.root = successor;
 		}
-		//update x parents to point on y
+		//update child parents to point on successor
 		else {
-			IAVLNode eps = x.getParent();
-			if (eps.getRight() == x) {
-				eps.setRight(y);
+			IAVLNode parent = child.getParent();
+			if (parent.getRight() == child) {
+				parent.setRight(successor);
 			}
 			else {
-				eps.setLeft(y);
+				parent.setLeft(successor);
 			}
-			y.setParent(eps);
 		}
-		return z;
+		return successorParent;
 	}
 
 	/**
+	 * recursive function that locally rebalancing the tree based on algorithm
+	 * keeps count of rebalance actions in countActions
+	 * update size variable of relevant nodes
+	 * stop condition - got to tree root
 	 *
 	 * complexity : O(log n)
 	 */
-	private int rebalance(IAVLNode x, int countActions) {
-		//if x is a virtual leaf - we got to the tree root
-		if (!x.isRealNode()) {
+	private int rebalance(IAVLNode node, int countActions) {
+		//if node is a virtual leaf - we got to the tree root
+		if (!node.isRealNode()) {
 			return 0;
 		}
 
-		int rankDeltaRight = x.getHeight() - x.getRight().getHeight();
-		int rankDeltaLeft = x.getHeight() - x.getLeft().getHeight();
+		int rankDiffRight = node.getHeight() - node.getRight().getHeight();
+		int rankDiffLeft = node.getHeight() - node.getLeft().getHeight();
 
-		//if the rank delta is (1,1), (1,2), (2,1) add 0 to countActions
-		if ((rankDeltaRight == 1 && rankDeltaLeft == 1) || (rankDeltaRight == 1 && rankDeltaLeft == 2) || (rankDeltaRight == 2 && rankDeltaLeft == 1)) {
-			x.setSize();
-
-			countActions += this.rebalance(x.getParent(), countActions);
+		//if the rank difference is (1,1), (1,2), (2,1) add 0 to countActions
+		if ((rankDiffRight == 1 && rankDiffLeft == 1) || (rankDiffRight == 1 && rankDiffLeft == 2) || (rankDiffRight == 2 && rankDiffLeft == 1)) {
+			node.setSize();
+			countActions += this.rebalance(node.getParent(), countActions);
 		}
 
-		//if the rank delta is (0,1) or (1,0) - promote x and call recursivly to rebalance on x parent
-		if ((rankDeltaRight == 1 && rankDeltaLeft == 0) || (rankDeltaRight == 0 && rankDeltaLeft == 1)) {
-			countActions += this.promote(x);
-			x.setSize();
-			countActions += this.rebalance(x.getParent(), countActions);
+		//if the rank difference is (0,1) or (1,0) - promote node
+		if ((rankDiffRight == 1 && rankDiffLeft == 0) || (rankDiffRight == 0 && rankDiffLeft == 1)) {
+			countActions += this.promote(node);
+			node.setSize();
+			countActions += this.rebalance(node.getParent(), countActions);
 		}
-		//if the rank delta is (2,2) - demote x and call recursivly to rebalance on x parent
-		else if (rankDeltaRight == 2 && rankDeltaLeft == 2) {
-			countActions += this.demote(x);
-			x.setSize();
-			countActions += this.rebalance(x.getParent(), countActions);
+		//if the rank difference is (2,2) - demote node
+		else if (rankDiffRight == 2 && rankDiffLeft == 2) {
+			countActions += this.demote(node);
+			node.setSize();
+			countActions += this.rebalance(node.getParent(), countActions);
 		}
-		//if the rank delta is (0,2)
-		else if (rankDeltaRight == 2 && rankDeltaLeft == 0) {
-			IAVLNode y = x.getLeft();
-			int rankDeltaLeftRight = y.getHeight() - y.getRight().getHeight();
-			int rankDeltaLeftLeft = y.getHeight() - y.getLeft().getHeight();
-			//if the rank delta of left child with his children is (1,2) - rotate right and demote x
-			if (rankDeltaLeftRight == 2 && rankDeltaLeftLeft == 1) {
-				countActions += this.rotateRight(x, y) + this.demote(x);
-				x.setSize();
-				y.setSize();
-				countActions += this.rebalance(y.getParent(), countActions);
+		//if the rank difference is (0,2)
+		else if (rankDiffRight == 2 && rankDiffLeft == 0) {
+			IAVLNode left = node.getLeft();
+			int rankDiffLeftRight = left.getHeight() - left.getRight().getHeight();
+			int rankDiffLeftLeft = left.getHeight() - left.getLeft().getHeight();
+			//if the rank difference of left child with his children is (1,2) - rotate right and demote node
+			if (rankDiffLeftRight == 2 && rankDiffLeftLeft == 1) {
+				countActions += this.rotateRight(node, left) + this.demote(node);
+				node.setSize();
+				left.setSize();
+				countActions += this.rebalance(left.getParent(), countActions);
 			}
-			//if the rank delta of left child with his children is (2,1) - double rotate right, demote x and y, promote y right child
-			else if (rankDeltaLeftRight == 1 && rankDeltaLeftLeft == 2) {
-				countActions += this.doubleRotateRight(x, y) + this.demote(x) + this.demote(y) + this.promote(y.getParent());
-				x.setSize();
-				y.setSize();
-				y.getParent().setSize();
-				countActions += this.rebalance(y.getParent().getParent(), countActions);
-			}
-		}
-		//if the rank delta is (2,0)
-		else if (rankDeltaRight == 0 && rankDeltaLeft == 2) {
-			IAVLNode y = x.getRight();
-			int rankDeltaRightRight = y.getHeight() - y.getRight().getHeight();
-			int rankDeltaRightLeft = y.getHeight() - y.getLeft().getHeight();
-			//if the rank delta of right child with his children is (2,1) - rotate left and demote x
-			if (rankDeltaRightRight == 1 && rankDeltaRightLeft == 2) {
-				countActions += this.rotateLeft(x, y) + this.demote(x);
-				x.setSize();
-				y.setSize();
-				countActions += this.rebalance(y.getParent(), countActions);
-			}
-			//if the rank delta of right child with his children is (1,2) - double rotate left, demote x and y, promote y right child
-			else if (rankDeltaRightRight == 2 && rankDeltaRightLeft == 1) {
-				countActions += this.doubleRotateLeft(x, y) + this.demote(x) + this.demote(y) + this.promote(y.getParent());
-				x.setSize();
-				y.setSize();
-				y.getParent().setSize();
-				countActions += this.rebalance(y.getParent().getParent(), countActions);
+			//if the rank difference of left child with his children is (2,1) - double rotate right, demote node and left child, promote left child new parent
+			else if (rankDiffLeftRight == 1 && rankDiffLeftLeft == 2) {
+				countActions += this.doubleRotateRight(node, left) + this.demote(node) + this.demote(left) + this.promote(left.getParent());
+				node.setSize();
+				left.setSize();
+				left.getParent().setSize();
+				countActions += this.rebalance(left.getParent().getParent(), countActions);
 			}
 		}
-		//if the rank delta is (3,1)
-		else if (rankDeltaRight == 1 && rankDeltaLeft == 3) {
-			IAVLNode y = x.getRight();
-			int rankDeltaRightRight = y.getHeight() - y.getRight().getHeight();
-			int rankDeltaRightLeft = y.getHeight() - y.getLeft().getHeight();
-			//if the rank delta of right child with his children is (1,1) - rotate left and demote x and promote y
-			if (rankDeltaRightRight == 1 && rankDeltaRightLeft == 1) {
-				countActions += this.rotateLeft(x, y) + this.demote(x) + this.promote(y);
-				x.setSize();
-				y.setSize();
-				countActions += this.rebalance(y.getParent(), countActions);
+		//if the rank difference is (2,0)
+		else if (rankDiffRight == 0 && rankDiffLeft == 2) {
+			IAVLNode right = node.getRight();
+			int rankDiffRightRight = right.getHeight() - right.getRight().getHeight();
+			int rankDiffRightLeft = right.getHeight() - right.getLeft().getHeight();
+			//if the rank difference of right child with his children is (2,1) - rotate left and demote node
+			if (rankDiffRightRight == 1 && rankDiffRightLeft == 2) {
+				countActions += this.rotateLeft(node, right) + this.demote(node);
+				node.setSize();
+				right.setSize();
+				countActions += this.rebalance(right.getParent(), countActions);
 			}
-			//if the rank delta of right child with his children is (2,1) - rotate left, demote x twice
-			else if (rankDeltaRightRight == 1 && rankDeltaRightLeft == 2) {
-				countActions += this.rotateLeft(x, y) + this.demote(x) + this.demote(x);
-				x.setSize();
-				y.setSize();
-				countActions += this.rebalance(y.getParent(), countActions);
-			}
-			//if the rank delta of right child with his children is (1,2) - double rotate left, demote x twice, demote y and promote y left child
-			else if (rankDeltaRightRight == 2 && rankDeltaRightLeft == 1) {
-				countActions += this.doubleRotateLeft(x, y) + this.demote(x) + this.demote(x) + this.demote(y) + this.promote(y.getParent());
-				x.setSize();
-				y.setSize();
-				y.getParent().setSize();
-				countActions += this.rebalance(y.getParent().getParent(), countActions);
+			//if the rank difference of right child with his children is (1,2) - double rotate left, demote node and right child, promote right child new parent
+			else if (rankDiffRightRight == 2 && rankDiffRightLeft == 1) {
+				countActions += this.doubleRotateLeft(node, right) + this.demote(node) + this.demote(right) + this.promote(right.getParent());
+				node.setSize();
+				right.setSize();
+				right.getParent().setSize();
+				countActions += this.rebalance(right.getParent().getParent(), countActions);
 			}
 		}
-		//if the rank delta is (1,3)
-		else if (rankDeltaRight == 3 && rankDeltaLeft == 1) {
-			IAVLNode y = x.getLeft();
-			int rankDeltaLeftRight = y.getHeight() - y.getRight().getHeight();
-			int rankDeltaLeftLeft = y.getHeight() - y.getLeft().getHeight();
-			//if the rank delta of left child with his children is (1,1) - rotate right and demote x and promote y
-			if (rankDeltaLeftRight == 1 && rankDeltaLeftLeft == 1) {
-				countActions += this.rotateRight(x, y) + this.demote(x) + this.promote(y);
-				x.setSize();
-				y.setSize();
-				countActions += this.rebalance(y.getParent(), countActions);
+		//if the rank difference is (3,1)
+		else if (rankDiffRight == 1 && rankDiffLeft == 3) {
+			IAVLNode right = node.getRight();
+			int rankdiffRightRight = right.getHeight() - right.getRight().getHeight();
+			int rankDiffRightLeft = right.getHeight() - right.getLeft().getHeight();
+			//if the rank difference of right child with his children is (1,1) - rotate left and demote node and promote right child
+			if (rankdiffRightRight == 1 && rankDiffRightLeft == 1) {
+				countActions += this.rotateLeft(node, right) + this.demote(node) + this.promote(right);
+				node.setSize();
+				right.setSize();
+				countActions += this.rebalance(right.getParent(), countActions);
 			}
-			//if the rank delta of left child with his children is (1,2) - rotate right, demote x twice
-			else if (rankDeltaLeftRight == 2 && rankDeltaLeftLeft == 1) {
-				countActions += this.rotateRight(x, y) + this.demote(x) + this.demote(x);
-				x.setSize();
-				y.setSize();
-				countActions += this.rebalance(y.getParent(), countActions);
+			//if the rank difference of right child with his children is (2,1) - rotate left, demote node twice
+			else if (rankdiffRightRight == 1 && rankDiffRightLeft == 2) {
+				countActions += this.rotateLeft(node, right) + this.demote(node) + this.demote(node);
+				node.setSize();
+				right.setSize();
+				countActions += this.rebalance(right.getParent(), countActions);
 			}
-			//if the rank delta of left child with his children is (2,1) - double rotate right, demote x twice, demote y and promote y right child
-			else if (rankDeltaLeftRight == 1 && rankDeltaLeftLeft == 2) {
-				countActions += this.doubleRotateRight(x, y) + this.demote(x) + this.demote(x) + this.demote(y) + this.promote(y.getParent());
-				x.setSize();
-				y.setSize();
-				y.getParent().setSize();
-				countActions += this.rebalance(y.getParent().getParent(), countActions);
+			//if the rank difference of right child with his children is (1,2) - double rotate left, demote node twice, demote right child and promote right child new parent
+			else if (rankdiffRightRight == 2 && rankDiffRightLeft == 1) {
+				countActions += this.doubleRotateLeft(node, right) + this.demote(node) + this.demote(node) + this.demote(right) + this.promote(right.getParent());
+				node.setSize();
+				right.setSize();
+				right.getParent().setSize();
+				countActions += this.rebalance(right.getParent().getParent(), countActions);
+			}
+		}
+		//if the rank difference is (1,3)
+		else if (rankDiffRight == 3 && rankDiffLeft == 1) {
+			IAVLNode left = node.getLeft();
+			int rankDiffLeftRight = left.getHeight() - left.getRight().getHeight();
+			int rankDiffLeftLeft = left.getHeight() - left.getLeft().getHeight();
+			//if the rank difference of left child with his children is (1,1) - rotate right and demote node and promote left child
+			if (rankDiffLeftRight == 1 && rankDiffLeftLeft == 1) {
+				countActions += this.rotateRight(node, left) + this.demote(node) + this.promote(left);
+				node.setSize();
+				left.setSize();
+				countActions += this.rebalance(left.getParent(), countActions);
+			}
+			//if the rank difference of left child with his children is (1,2) - rotate right, demote node twice
+			else if (rankDiffLeftRight == 2 && rankDiffLeftLeft == 1) {
+				countActions += this.rotateRight(node, left) + this.demote(node) + this.demote(node);
+				node.setSize();
+				left.setSize();
+				countActions += this.rebalance(left.getParent(), countActions);
+			}
+			//if the rank difference of left child with his children is (2,1) - double rotate right, demote node twice, demote left child and promote left child new parent
+			else if (rankDiffLeftRight == 1 && rankDiffLeftLeft == 2) {
+				countActions += this.doubleRotateRight(node, left) + this.demote(node) + this.demote(node) + this.demote(left) + this.promote(left.getParent());
+				node.setSize();
+				left.setSize();
+				left.getParent().setSize();
+				countActions += this.rebalance(left.getParent().getParent(), countActions);
 			}
 		}
 		this.virtualLeaf.setLeft(null);
@@ -485,124 +481,131 @@ public class AVLTree {
 	}
 
 	/**
+	 * promotes node height + 1
 	 *
 	 * complexity : O(1)
 	 */
-	private int promote(IAVLNode x) {
-		x.setHeight(x.getHeight() + 1);
+	private int promote(IAVLNode node) {
+		node.setHeight(node.getHeight() + 1);
 		return 1;
 	}
 
 	/**
+	 * demotes node height - 1
 	 *
 	 * complexity : O(1)
 	 */
-	private int demote(IAVLNode x) {
-		x.setHeight(x.getHeight() - 1);
+	private int demote(IAVLNode node) {
+		node.setHeight(node.getHeight() - 1);
 		return 1;
 	}
 
 	/**
+	 * locally rotate the tree to the right
 	 *
 	 * complexity : O(1)
 	 */
-	private int rotateRight(IAVLNode x, IAVLNode y) {
+	private int rotateRight(IAVLNode node, IAVLNode left) {
 		//if the rotation involves the tree root - update it accordingly
-		if (x == this.root) {
-			this.root = y;
+		if (node == this.root) {
+			this.root = left;
 		}
-		//otherwise - update x parent pointer to y
+		//otherwise - update node parent pointer to left child
 		else {
-			IAVLNode parent = x.getParent();
-			if (parent.getRight() == x) {
-				parent.setRight(y);
+			IAVLNode parent = node.getParent();
+			if (parent.getRight() == node) {
+				parent.setRight(left);
 			} else {
-				parent.setLeft(y);
+				parent.setLeft(left);
 			}
 		}
 		//switch pointers
-		y.setParent(x.getParent());
-		x.setLeft(y.getRight());
-		x.getLeft().setParent(x);
-		y.setRight(x);
-		x.setParent(y);
+		left.setParent(node.getParent());
+		node.setLeft(left.getRight());
+		node.getLeft().setParent(node);
+		left.setRight(node);
+		node.setParent(left);
 
 		return 1;
 	}
 
 	/**
+	 * locally rotate the tree to the left
 	 *
 	 * complexity : O(1)
 	 */
-	private int rotateLeft(IAVLNode x, IAVLNode y) {
+	private int rotateLeft(IAVLNode node, IAVLNode right) {
 		//if the rotation involves the tree root - update it accordingly
-		if (x == this.root) {
-			this.root = y;
+		if (node == this.root) {
+			this.root = right;
 		}
 		//otherwise - update x parent pointer to y
 		else {
-			IAVLNode parent = x.getParent();
-			if (parent.getRight() == x) {
-				parent.setRight(y);
+			IAVLNode parent = node.getParent();
+			if (parent.getRight() == node) {
+				parent.setRight(right);
 			} else {
-				parent.setLeft(y);
+				parent.setLeft(right);
 			}
 		}
 		//switch pointers
-		y.setParent(x.getParent());
-		x.setRight(y.getLeft());
-		x.getRight().setParent(x);
-		y.setLeft(x);
-		x.setParent(y);
+		right.setParent(node.getParent());
+		node.setRight(right.getLeft());
+		node.getRight().setParent(node);
+		right.setLeft(node);
+		node.setParent(right);
 
 		return 1;
 	}
 
 	/**
+	 * locally double rotate the tree to the right
 	 *
 	 * complexity : O(1)
 	 */
-	private int doubleRotateRight(IAVLNode x, IAVLNode y) {
-		IAVLNode z = y.getRight();
+	private int doubleRotateRight(IAVLNode node, IAVLNode left) {
+		IAVLNode leftRight = left.getRight();
 		//if the rotation involves the tree root - update it accordingly
-		if (x == this.root) {
-			this.root = z;
+		if (node == this.root) {
+			this.root = leftRight;
 		}
 		//switch pointers
-		this.rotateLeft(y,z);
-		this.rotateRight(x,z);
+		this.rotateLeft(left,leftRight);
+		this.rotateRight(node,leftRight);
 		return 2;
 	}
 
 	/**
+	 * locally double rotate the tree to the left
 	 *
 	 * complexity : O(1)
 	 */
-	private int doubleRotateLeft(IAVLNode x, IAVLNode y) {
-		IAVLNode z = y.getLeft();
+	private int doubleRotateLeft(IAVLNode node, IAVLNode right) {
+		IAVLNode rightLeft = right.getLeft();
 		//if the rotation involves the tree root - update it accordingly
-		if (x == this.root) {
-			this.root = z;
+		if (node == this.root) {
+			this.root = rightLeft;
 		}
 		//switch pointers
-		this.rotateRight(y,z);
-		this.rotateLeft(x,z);
+		this.rotateRight(right,rightLeft);
+		this.rotateLeft(node,rightLeft);
 
 		return 2;
 	}
 
 	/**
+	 * find node's successor using the algorithm thought in class
 	 *
 	 * complexity : O(log n)
 	 */
-	private IAVLNode findSuccessor(IAVLNode x) {
+	private IAVLNode findSuccessor(IAVLNode node) {
 		//if x is max - it has no successor
-		if (x == this.max) {
+		if (node == this.max) {
 			return this.virtualLeaf;
 		}
 
 		//successor algorithm
-		IAVLNode curr = x;
+		IAVLNode curr = node;
 		if (curr.getRight().isRealNode()) {
 			curr = curr.getRight();
 			while (curr.getLeft().isRealNode()) {
@@ -624,17 +627,18 @@ public class AVLTree {
 	}
 
 	/**
+	 * find node's predecessor using the algorithm thought in class
 	 *
 	 * complexity : O(log n)
 	 */
-	private IAVLNode findPredecessor(IAVLNode x) {
+	private IAVLNode findPredecessor(IAVLNode node) {
 		//if x is min - it has no predecessor
-		if (x == this.min) {
+		if (node == this.min) {
 			return this.virtualLeaf;
 		}
 
 		//predecessor algorithm
-		IAVLNode curr = x;
+		IAVLNode curr = node;
 		if (curr.getLeft().isRealNode()) {
 			curr = curr.getLeft();
 			while (curr.getRight().isRealNode()) {
@@ -690,25 +694,13 @@ public class AVLTree {
 	public int[] keysToArray() {
 		//create an empty array to return
 		int[] orederedKeys = new int[this.size()];
-		//create a help stack
-		Stack<IAVLNode> helpStack = new Stack<>();
-		//create a pointer to tree root
-		IAVLNode curr = this.root;
+		//create an ordered array of tree nodes
+		IAVLNode[] orderedNodes = new IAVLNode[this.size()];
+		this.nodeToArray(this.root, orderedNodes, 0);
 
-		//if the tree is empty
-		if (this.empty()) {
-			return orederedKeys;
-		}
-		//inOrder using a stack
-		for (int i = 0; i < orederedKeys.length; i++) {
-			while (curr.isRealNode()) {
-				helpStack.push(curr);
-				curr = curr.getLeft();
-
-			}
-			curr = helpStack.pop();
-			orederedKeys[i] = curr.getKey();
-			curr = curr.getRight();
+		//get key from ordered array of tree nodes
+		for (int i = 0; i < orderedNodes.length; i++) {
+			orederedKeys[i] = orderedNodes[i].getKey();
 		}
 		return orederedKeys;
 	}
@@ -725,26 +717,33 @@ public class AVLTree {
 	public String[] infoToArray() {
 		//create an empty array to return
 		String[] orederedInfo = new String[this.size()];
-		//create a help stack
-		Stack<IAVLNode> helpStack = new Stack<>();
-		//create a pointer to tree root
-		IAVLNode curr = this.root;
+		//create an ordered array of tree nodes
+		IAVLNode[] orderedNodes = new IAVLNode[this.size()];
+		this.nodeToArray(this.root, orderedNodes, 0);
 
-		//if the tree is empty
-		if (this.empty()) {
-			return orederedInfo;
-		}
-		//inOrder using a stack
-		for (int i = 0; i < orederedInfo.length; i++) {
-			while (curr.isRealNode()) {
-				helpStack.push(curr);
-				curr = curr.getLeft();
-			}
-			curr = helpStack.pop();
-			orederedInfo[i] = curr.getValue();
-			curr = curr.getRight();
+		//get info from ordered array of tree nodes
+		for (int i = 0; i < orderedNodes.length; i++) {
+			orederedInfo[i] = orderedNodes[i].getValue();
 		}
 		return orederedInfo;
+	}
+
+	/**
+	 *
+	 */
+
+	private int nodeToArray(IAVLNode curr, IAVLNode[] orderedNodes, int i) {
+		if (i == orderedNodes.length) {
+			return i-1;
+		}
+
+		if (curr.isRealNode()) {
+			i = this.nodeToArray(curr.getLeft(), orderedNodes, i);
+			orderedNodes[i] = curr;
+			i++;
+			i = this.nodeToArray(curr.getRight(), orderedNodes, i);
+		}
+		return i;
 	}
 
 	/**
