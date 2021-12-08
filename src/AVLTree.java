@@ -382,8 +382,15 @@ public class AVLTree {
 			IAVLNode left = node.getLeft();
 			int rankDiffLeftRight = left.getHeight() - left.getRight().getHeight();
 			int rankDiffLeftLeft = left.getHeight() - left.getLeft().getHeight();
+			//if the rank difference of left child with his children is (1,1) - rotate right and promote left child (relevant for join)
+			if (rankDiffLeftRight == 1 && rankDiffLeftLeft == 1) {
+				countActions += this.rotateRight(node, left) + this.promote(left);
+				node.setSize();
+				left.setSize();
+				countActions += this.rebalance(left.getParent(), countActions);
+			}
 			//if the rank difference of left child with his children is (1,2) - rotate right and demote node
-			if (rankDiffLeftRight == 2 && rankDiffLeftLeft == 1) {
+			else if (rankDiffLeftRight == 2 && rankDiffLeftLeft == 1) {
 				countActions += this.rotateRight(node, left) + this.demote(node);
 				node.setSize();
 				left.setSize();
@@ -403,8 +410,15 @@ public class AVLTree {
 			IAVLNode right = node.getRight();
 			int rankDiffRightRight = right.getHeight() - right.getRight().getHeight();
 			int rankDiffRightLeft = right.getHeight() - right.getLeft().getHeight();
+			//if the rank difference of right child with his children is (1,1) - rotate left and promote right child (relevant for join)
+			if (rankDiffRightRight == 1 && rankDiffRightLeft == 1) {
+				countActions += this.rotateLeft(node, right) + this.promote(right);
+				node.setSize();
+				right.setSize();
+				countActions += this.rebalance(right.getParent(), countActions);
+			}
 			//if the rank difference of right child with his children is (2,1) - rotate left and demote node
-			if (rankDiffRightRight == 1 && rankDiffRightLeft == 2) {
+			else if (rankDiffRightRight == 1 && rankDiffRightLeft == 2) {
 				countActions += this.rotateLeft(node, right) + this.demote(node);
 				node.setSize();
 				right.setSize();
