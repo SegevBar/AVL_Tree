@@ -1,3 +1,5 @@
+import java.util.ArrayDeque;
+import java.util.Queue;
 
 /**
  *
@@ -8,12 +10,293 @@
  *
  */
 
-public class AVLTree {
+public class AVLTreeExp {
 
 	private IAVLNode virtualLeaf = new AVLNode();
 	private IAVLNode root = virtualLeaf;
 	private IAVLNode min = virtualLeaf;
 	private IAVLNode max = virtualLeaf;
+	private int fingerSearchCounter = 0;
+
+	public AVLTreeExp() {};
+	public AVLTreeExp(int[] keys) {
+
+		for (int key : keys) {
+			this.insertFinger(key, "num" + key);
+//			System.out.println("added key:" + key);
+//			this.bfs_print();
+//			System.out.println("count search steps: " + this.getFingerCounter());
+
+		}
+	}
+
+	//finger tree stuff
+	public int getFingerCounter() {
+		return this.fingerSearchCounter;
+	}
+
+	public int insertFinger(int k, String i) {
+		int rebalanceActions = 0;
+
+		//if the tree is empty - add the first node as the root
+		if (this.empty()) {
+			AVLNode firstNode = new AVLNode(k, i);
+			this.root = firstNode;
+			this.min = firstNode;
+			this.max = firstNode;
+
+			//updating the node variables:
+			firstNode.setRight(this.virtualLeaf);
+			firstNode.setLeft(this.virtualLeaf);
+			firstNode.setParent(this.virtualLeaf);
+			firstNode.setHeight(0);
+			firstNode.setSize();
+
+			this.fingerSearchCounter++;
+		}
+		//otherwise - find the position to add the new node, add and rebalance
+		else {
+			IAVLNode parent = this.treePosition(k);
+			if (parent.getKey() == k) {  //if key is already in the tree - return (-1)
+				return -1;
+			}
+			IAVLNode child = new AVLNode(k, i);
+
+			//updating the node variables:
+			child.setRight(this.virtualLeaf);
+			child.setLeft(this.virtualLeaf);
+			child.setParent(parent);
+			child.setHeight(0);
+			child.setSize();
+
+			//add the new node as left child if k is smaller, or right child if k is bigger than parent's key
+			if (parent.getKey() < k) {
+				parent.setRight(child);
+			} else {
+				parent.setLeft(child);
+			}
+
+			//check if k is smaller then min key
+			if (this.min.getKey() > k) {
+				this.min = child;
+			}
+			//check if k is bigger then max key
+			if (this.max.getKey() < k) {
+				this.max = child;
+			}
+
+			this.fingerSearchCounter += searchFinger(k);
+
+			//rebalance the tree
+			rebalanceActions += this.rebalance(parent, rebalanceActions);
+		}
+		return rebalanceActions;
+	}
+
+	private int searchFinger(int k) {
+		IAVLNode p = this.max;
+		if (p.getKey() == k) {
+			return 1;
+		}
+		IAVLNode parent = p.getParent();
+		int count = 1;
+
+		// k < max.key
+		while (parent.isRealNode() && p.getKey() > k) {
+			if (parent.getKey() < k) {
+				return treePositionFinger(k, p, count);
+			}
+			p = parent;
+			parent = parent.getParent();
+			count++;
+		}
+		return treePositionFinger(k, p, count);
+	}
+
+	private int treePositionFinger(int k, IAVLNode curRoot, int count) {
+		IAVLNode p = curRoot;
+
+		while (p.isRealNode()) {
+			if (p.getKey() == k) {
+				return count;
+			}
+			//if node.key < k continue with smaller keys on the lest child
+			else if (p.getKey() > k) {
+				if (p.getLeft().isRealNode()) {
+					p = p.getLeft();
+					count++;
+				}
+				//if there is no child - return the parent
+				else {
+					count++;
+					return count;
+				}
+			}
+			//if node.key > k continue with bigger keys on the right child
+			else {
+				if (p.getRight().isRealNode()) {
+					p = p.getRight();
+					count++;
+				}
+				//if there is no child - return the parent
+				else {
+					count++;
+					return count;
+				}
+			}
+		}
+		count++;
+		return count;
+	}
+
+	public void bfs_print(){
+		AVLTreeExp.IAVLNode v = this.getRoot();
+		int height = v.getHeight();
+		AVLTreeExp.IAVLNode[][] table = new AVLTreeExp.IAVLNode[height+1][(int) Math.pow(2,height)];
+
+		Queue<AVLTreeExp.IAVLNode> q = new ArrayDeque<>();
+
+
+		q.add(v);
+
+		for (int h=0; h <= height; h++){
+			int levelsize = q.size();
+			for (int i=0; i<levelsize; i++){
+				v = q.remove();
+				table[h][i] = v;
+
+
+				if (v.isRealNode() && v.getLeft().isRealNode())
+					q.add(v.getLeft());
+				else{
+					q.add(this.virtualLeaf);
+				}
+				if (v.isRealNode() && v.getRight().isRealNode())
+					q.add(v.getRight());
+				else{
+					q.add(this.virtualLeaf);
+				}
+
+			}
+		}
+		AVLTreeExp.IAVLNode[][] alignedtable = this.aligningPrintTable(table);
+		String[][] treetable = this.makeTreeAlike(alignedtable);
+		printtreetable(treetable);
+	}
+
+
+	private AVLTreeExp.IAVLNode[][] aligningPrintTable (AVLTreeExp.IAVLNode[][] table){
+		int height = this.getRoot().getHeight();
+		if (height < 0) {
+			return null;
+		}
+		AVLTreeExp.IAVLNode[][] alignedtable = new AVLTreeExp.IAVLNode[height+1][2*((int) Math.pow(2,height))-1];
+		for (int i=0; i<alignedtable.length; i++)
+			for (int j=0; j<alignedtable[0].length; j++)
+				alignedtable[i][j] = null;
+
+
+		for (int r=height; r>=0; r--){
+			if (r == height){
+				for (int i=0; i<table[0].length; i++)
+					alignedtable[r][i*2] = table[r][i];
+			} else {
+
+				int firstloc = 0;
+				int secondloc = 0;
+				boolean firstNodeSeen = false;
+				int currnode = 0;
+
+				for (int j=0; j<alignedtable[0].length; j++){
+					if (alignedtable[r+1][j] != null){
+						if (firstNodeSeen){
+							secondloc = j;
+							alignedtable[r][(firstloc+secondloc)/2] = table[r][currnode++];
+							firstNodeSeen = false;
+						} else {
+							firstloc = j;
+							firstNodeSeen = true;
+						}
+					}
+				}
+			}
+		}
+
+		return alignedtable;
+	}
+
+	private String[][] makeTreeAlike (AVLTreeExp.IAVLNode[][] alignedtable){
+		int height = this.getRoot().getHeight();
+		if (height < 0) {
+			return null;
+		}
+		String[][] treetable = new String[(height+1)*3-2][2*((int) Math.pow(2,height))-1];
+
+		for (int r=0; r<treetable.length; r++){
+			if (r%3 == 0){
+				for (int j=0; j<treetable[0].length; j++) {
+					AVLTreeExp.IAVLNode v = alignedtable[r/3][j];
+					if (v != null && v.isRealNode()) {
+						String k = "" + v.getKey();
+						if (k.length() == 1)
+							k = k + " ";
+						treetable[r][j] = k;
+					} else{
+						if (v != null)
+							treetable[r][j] = "x ";
+						else
+							treetable[r][j] = "  ";
+					}
+				}
+			}
+
+			else {
+				if (r%3 == 1) {
+					for (int j=0; j<treetable[0].length; j++){
+						if (!treetable[r-1][j].equals("  "))
+							treetable[r][j] = "| ";
+						else
+							treetable[r][j] = "  ";
+					}
+				} else { //r%3 == 2
+					continue;
+				}
+			}
+		}
+		for (int r=0; r<treetable.length; r++){
+			if (r%3 == 2){
+				boolean write = false;
+				for (int j=0; j<treetable[0].length; j++){
+					if (!treetable[r+1][j].equals("  ")){
+						if (write)
+							treetable[r][j] = "__";
+						write = !write;
+					}
+					if (write)
+						treetable[r][j] = "__";
+					else
+						treetable[r][j] = "  ";
+				}
+			}
+		}
+
+
+
+		return treetable;
+	}
+
+	private void printtreetable (String[][] treetable){
+		if (treetable != null) {
+			for (int i=0; i< treetable.length; i++){
+				for (int j=0; j< treetable[0].length; j++){
+					System.out.print(treetable[i][j]);
+					if (j == treetable[0].length-1)
+						System.out.print("\n");
+				}
+			}
+		}
+
+	}
 
 	/**
 	* public boolean empty()
@@ -854,12 +1137,12 @@ public class AVLTree {
 	 *
 	 * complexity :
 	*/
-	public AVLTree[] split(int x) {
+	public AVLTreeExp[] split(int x) {
 		IAVLNode xNode = treePosition(x);
-		AVLTree[] result = new AVLTree[2];
+		AVLTreeExp[] result = new AVLTreeExp[2];
 
-		result[0] = new AVLTree(); // < x
-		result[1] = new AVLTree(); // > x
+		result[0] = new AVLTreeExp(); // < x
+		result[1] = new AVLTreeExp(); // > x
 
 		//if x has children we set them first:
 		if (xNode.getLeft().isRealNode()) {
@@ -883,7 +1166,7 @@ public class AVLTree {
 			IAVLNode copyNode = new AVLNode(yNode.getKey(), yNode.getValue());
 
 			if (yNode.getKey() < x) {
-				AVLTree lessThan = new AVLTree();
+				AVLTreeExp lessThan = new AVLTreeExp();
 				if (yNode.getLeft().isRealNode()) {
 					lessThan.setRoot(yNode.getLeft());
 					lessThan.getRoot().setParent(lessThan.virtualLeaf);
@@ -891,7 +1174,7 @@ public class AVLTree {
 				result[0].join(copyNode, lessThan);
 			}
 			else {
-				AVLTree moreThan = new AVLTree();
+				AVLTreeExp moreThan = new AVLTreeExp();
 				if (yNode.getRight().isRealNode()) {
 					moreThan.setRoot(yNode.getRight());
 					moreThan.getRoot().setParent(moreThan.virtualLeaf);
@@ -915,7 +1198,7 @@ public class AVLTree {
 	 *
 	 * complexity :
 	*/
-	public int join(IAVLNode x, AVLTree t) {
+	public int join(IAVLNode x, AVLTreeExp t) {
 		int resultReturn = Math.abs(this.root.getHeight() - t.getRoot().getHeight()) + 1;
 
 		if (t.empty() && this.empty()) {
@@ -940,8 +1223,8 @@ public class AVLTree {
 
 		//neither is empty
 		//check which tree should be on which side
-		AVLTree rightTree;
-		AVLTree leftTree;
+		AVLTreeExp rightTree;
+		AVLTreeExp leftTree;
 		if (this.getRoot().getKey() > x.getKey()) {
 			rightTree = this;
 			leftTree = t;
