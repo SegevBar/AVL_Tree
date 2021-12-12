@@ -234,6 +234,10 @@ public class AVLTree {
 				parent.setLeft(this.virtualLeaf);
 			}
 		}
+		child.setParent(null);
+		child.setLeft(null);
+		child.setRight(null);
+
 		return parent;
 	}
 
@@ -292,6 +296,10 @@ public class AVLTree {
 				}
 			}
 		}
+		child.setParent(null);
+		child.setLeft(null);
+		child.setRight(null);
+
 		return parent;
 	}
 
@@ -345,6 +353,10 @@ public class AVLTree {
 				parent.setLeft(successor);
 			}
 		}
+		child.setParent(null);
+		child.setLeft(null);
+		child.setRight(null);
+
 		return successorParent;
 	}
 
@@ -832,7 +844,7 @@ public class AVLTree {
 	}
 
 	/**
-	 * setRoot(IAVLNode newRoot)
+	 * private void setRoot(IAVLNode newRoot)
 	 *
 	 * set the tree root to be newRoot
 	 *
@@ -842,6 +854,16 @@ public class AVLTree {
 		this.root = newRoot;
 	}
 
+	/**
+	 * public IAVLNode getVirtualLeaf()
+	 *
+	 * return the virtual leaf of the tree
+	 *
+	 *  complexity : O(1)
+	 */
+	public IAVLNode getVirtualLeaf() {
+		return this.virtualLeaf;
+	}
 
 	/**
 	* public AVLTree[] split(int x)
@@ -852,7 +874,7 @@ public class AVLTree {
 	* precondition: search(x) != null (i.e. you can also assume that the tree is not empty)
 	* postcondition: none
 	 *
-	 * complexity :
+	 * complexity : O(log n)
 	*/
 	public AVLTree[] split(int x) {
 		IAVLNode xNode = treePosition(x);
@@ -864,37 +886,39 @@ public class AVLTree {
 		//if x has children we set them first:
 		if (xNode.getLeft().isRealNode()) {
 			result[0].setRoot(xNode.getLeft());
+			xNode.getLeft().setParent(this.virtualLeaf);
 		}
 		if (xNode.getRight().isRealNode()) {
 			result[1].setRoot(xNode.getRight());
+			xNode.getRight().setParent(this.virtualLeaf);
 		}
 
 		IAVLNode yNode = xNode.getParent();
 
-		//disconnect our xNode
-		xNode.getLeft().setParent(this.virtualLeaf);
-		xNode.getRight().setParent(this.virtualLeaf);
-		xNode.setLeft(this.virtualLeaf);
-		xNode.setRight(this.virtualLeaf);
-		xNode.setParent(this.virtualLeaf);
+		//disconnect xNode from tree
+		xNode.setLeft(null);
+		xNode.setRight(null);
+		xNode.setParent(null);
 
+		//build smaller and bigger than x trees
 		while (yNode.isRealNode()) {
-			System.out.println(yNode.getKey());
 			IAVLNode copyNode = new AVLNode(yNode.getKey(), yNode.getValue());
 
+			//if parent key is smaller than x - add to smaller tree (index 2)
 			if (yNode.getKey() < x) {
 				AVLTree lessThan = new AVLTree();
 				if (yNode.getLeft().isRealNode()) {
 					lessThan.setRoot(yNode.getLeft());
-					lessThan.getRoot().setParent(lessThan.virtualLeaf);
+					lessThan.getRoot().setParent(lessThan.getVirtualLeaf());
 				}
 				result[0].join(copyNode, lessThan);
 			}
+			//if parent key is bigger than x - add to bigger tree (index 1)
 			else {
 				AVLTree moreThan = new AVLTree();
 				if (yNode.getRight().isRealNode()) {
 					moreThan.setRoot(yNode.getRight());
-					moreThan.getRoot().setParent(moreThan.virtualLeaf);
+					moreThan.getRoot().setParent(moreThan.getVirtualLeaf());
 				}
 				result[1].join(copyNode, moreThan);
 			}
@@ -913,28 +937,29 @@ public class AVLTree {
 	* precondition: keys(t) < x < keys() or keys(t) > x > keys(). t/tree might be empty (rank = -1).
 	* postcondition: none
 	 *
-	 * complexity :
+	 * complexity : O(|tree.rank - t.rank| + 1)
 	*/
 	public int join(IAVLNode x, AVLTree t) {
-		int resultReturn = Math.abs(this.root.getHeight() - t.getRoot().getHeight()) + 1;
+		int result = Math.abs(this.root.getHeight() - t.getRoot().getHeight()) + 1;
 
+		//if t tree is empty and current tree is empty - add x to the tree and return result
 		if (t.empty() && this.empty()) {
-			this.max = x;
-			this.min = x;
 			this.insert(x.getKey(), x.getValue());
-			return resultReturn;
+			return result;
 		}
 		else {
+			//if only t in empty - add x to current tree and return result
 			if (t.empty()) {
 				this.insert(x.getKey(), x.getValue());
-				return resultReturn;
+				return result;
 			}
-			if (this.empty()) {
+			//if current tree is empty - add t to curr tree, add x and return result
+			else if (this.empty()) {
 				this.root = t.getRoot();
 				this.max = t.getMax();
 				this.min = t.getMin();
 				this.insert(x.getKey(), x.getValue());
-				return resultReturn;
+				return result;
 			}
 		}
 
@@ -950,64 +975,75 @@ public class AVLTree {
 			rightTree = t;
 			leftTree = this;
 		}
-
 		//compare heights
 		int heightDelta = rightTree.getRoot().getHeight() - leftTree.getRoot().getHeight();
+
+		//if trees have almost same height (+-1) - add x as the root of the joined tree
 		if (heightDelta <= 1 && heightDelta >= -1) {
+			//update x fields
 			x.setRight(rightTree.getRoot());
 			x.getRight().setParent(x);
 			x.setLeft(leftTree.getRoot());
 			x.getLeft().setParent(x);
-			this.root = x;
-			this.max = rightTree.getMax();
-			this.min = leftTree.getMin();
 			x.setParent(this.virtualLeaf);
 			x.setSize();
 			x.setHeight(Math.max(x.getRight().getHeight(), x.getLeft().getHeight()) + 1);
-			return 1;
+
+			//update tree root to x
+			this.root = x;
 		}
 		else {
+			//if the right tree is taller than the left tree
 			if (heightDelta > 0) {
-				IAVLNode tempNode = rightTree.getRoot();
-				while (tempNode.getHeight() > leftTree.getRoot().getHeight()) {
-					tempNode = tempNode.getLeft();
+				IAVLNode xRightChild = rightTree.getRoot();
+
+				//going down the left path of tree to find the position to join the trees
+				while (xRightChild.getHeight() > leftTree.getRoot().getHeight()) {
+					xRightChild = xRightChild.getLeft();
 				}
-				x.setParent(tempNode.getParent());
+				//update nodes fields by algorithm
+				x.setParent(xRightChild.getParent());
 				x.setLeft(leftTree.getRoot());
+				x.setRight(xRightChild);
 				x.getLeft().setParent(x);
-				x.setRight(tempNode);
 				x.getRight().setParent(x);
-				if (x.getParent() != this.virtualLeaf) {
+				x.setHeight(Math.max(x.getRight().getHeight(), x.getLeft().getHeight()) + 1);
+				if (x.getParent().isRealNode()) {
 					x.getParent().setLeft(x);
 				}
+				//update tree root to right tree root
 				this.root = rightTree.getRoot();
-				x.setHeight(Math.max(x.getRight().getHeight(), x.getLeft().getHeight()) + 1);
-				this.rebalance(x, 0);
-
 			}
-			if (heightDelta < 0) {
-				IAVLNode tempNode = leftTree.getRoot();
-				while (tempNode.getHeight() > rightTree.getRoot().getHeight()) {
-					tempNode = tempNode.getRight();
+			//if the left tree is taller than the right tree
+			else if (heightDelta < 0) {
+				IAVLNode xLeftChild = leftTree.getRoot();
+
+				//going down the right path of tree to find the position to join the trees
+				while (xLeftChild.getHeight() > rightTree.getRoot().getHeight()) {
+					xLeftChild = xLeftChild.getRight();
 				}
-				x.setParent(tempNode.getParent());
+				//update nodes fields by algorithm
+				x.setParent(xLeftChild.getParent());
 				x.setRight(rightTree.getRoot());
-				x.setLeft(tempNode);
+				x.setLeft(xLeftChild);
 				x.getRight().setParent(x);
 				x.getLeft().setParent(x);
-				if (x.getParent() != this.virtualLeaf) {
+				x.setHeight(Math.max(x.getRight().getHeight(), x.getLeft().getHeight()) + 1);
+				if (x.getParent().isRealNode()) {
 					x.getParent().setRight(x);
 				}
+				//update tree root to right tree root
 				this.root = leftTree.getRoot();
-				x.setHeight(Math.max(x.getRight().getHeight(), x.getLeft().getHeight()) + 1);
-				this.rebalance(x, 0);
-
 			}
 		}
+		//rebalance the tree
+		this.rebalance(x, 0);
 
-		this.max = rightTree.max;
-		this.min = leftTree.min;
-		return resultReturn;
+		//update max and min fields
+		this.max = rightTree.getMax();
+		this.min = leftTree.getMin();
+
+		return result;
 	}
 
 	/**

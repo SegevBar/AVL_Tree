@@ -3,7 +3,14 @@ import java.util.Arrays;
 
 public class Test {
     public static void main(String[] args) {
-        test7();
+        int[] k1 = {6,9,12,7,1,3,11,4,18,2,20};
+        AVLTreeExp t1 = new AVLTreeExp(k1);
+        t1.bfs_print();
+        AVLTreeExp[] trees = new AVLTreeExp[2];
+        trees = t1.split(7);
+        trees[0].bfs_print();
+        trees[1].bfs_print();
+        System.out.println(trees[1].getRoot().getKey());
 
     }
 
