@@ -616,6 +616,7 @@ public class AVLTree {
 		//switch pointers
 		this.rotateLeft(left,leftRight);
 		this.rotateRight(node,leftRight);
+
 		return 2;
 	}
 
@@ -803,7 +804,7 @@ public class AVLTree {
 	/**
 	 * private int nodeToArray(IAVLNode curr, IAVLNode[] orderedNodes, int i)
 	 *
-	 * recursivly inOrder traversal the tree and creates an ordered array of tree nodes
+	 * recursively inOrder traversal the tree and creates an ordered array of tree nodes
 	 *
 	 * complexity : O(n)
 	 */
@@ -904,7 +905,7 @@ public class AVLTree {
 		while (yNode.isRealNode()) {
 			IAVLNode copyNode = new AVLNode(yNode.getKey(), yNode.getValue());
 
-			//if parent key is smaller than x - add to smaller tree (index 2)
+			//if parent key is smaller than x - add to smaller tree (index 0)
 			if (yNode.getKey() < x) {
 				AVLTree lessThan = new AVLTree();
 				if (yNode.getLeft().isRealNode()) {
@@ -963,7 +964,7 @@ public class AVLTree {
 			}
 		}
 
-		//neither is empty
+		//if neither is empty
 		//check which tree should be on which side
 		AVLTree rightTree;
 		AVLTree leftTree;
