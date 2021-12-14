@@ -1318,6 +1318,7 @@ public class AVLTreeExp {
 
 			//update tree root to x
 			this.root = x;
+			return 1;
 		}
 		else {
 			//if the right tree is taller than the left tree
